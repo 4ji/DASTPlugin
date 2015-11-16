@@ -80,9 +80,9 @@ public class BasePane extends JLayeredPane implements ActionListener{
 				
 				if(!mode){
 					cellpanel.put(oin ,new CellPanel(oin));
-				}else{
+				}/*else{
 					cellpanel.put(oin ,new CellPanelVerJive(oin));
-				}
+				}*/
 				/*if(cellpanel.get(oin).getPreferredSize().width > cellWidth && oin.isArray() == false){
 					cellWidth = cellpanel.get(oin).getPreferredSize().width;
 				}
@@ -151,11 +151,11 @@ public class BasePane extends JLayeredPane implements ActionListener{
 	
 	private void setLinePanel(){
 		LinePanel line;
-		if(!mode){
+		//if(!mode){
 			line = new LinePanel(targetObject, cellpanel, this);
-		}else{
+	/*	}else{
 			line = new LinePanelVerJive(targetObject, cellpanel, this);
-		}
+		}*/
 		this.add(line, JLayeredPane.PALETTE_LAYER);
 		line.setSize(this.getPreferredSize());
 	}
