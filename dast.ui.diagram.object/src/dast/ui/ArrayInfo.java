@@ -19,28 +19,28 @@ import com.sun.jdi.Value;
 
 
 public class ArrayInfo extends ObjectInfo{
-	private int size;
-	private ArrayReference array;
-	private boolean isPrimitive = false;
-	private ObjectInfo[] arrayValue;
-	private Value[] primitiveArray;
-	private int directed;
+	protected int size;
+	protected ArrayReference array;
+	protected boolean isPrimitive = false;
+	protected ObjectInfo[] arrayValue;
+	protected Value[] primitiveArray;
+	protected int directed;
 	private String fieldName;
-	private Type type;
+	protected Type type;
 	
-	private int[] changeTime;
+	protected int[] changeTime;
 
 
 	private String name;
 	private int width = 0;
 	private int length = 0;
-	private int ownLength = 1;
+	protected int ownLength = 1;
 	private int ownWidth = 1;
 	private int up_half = 0;
 	private int bottom_half = 0;
 	private int left_half = 0;
 	private int right_half = 0;
-	private int with = -1;
+	protected int with = -1;
 	
 
 	
@@ -80,7 +80,12 @@ public class ArrayInfo extends ObjectInfo{
 				}
 			}
 			if(isRead){
+	
 				if((((ArrayType)type).componentType() instanceof PrimitiveType ) || ((((ArrayType)type).componentType().toString().matches(".*" + "java.lang.String" + ".*")))){
+					this.isPrimitive = true;
+				}
+				if(((ArrayType) type).componentTypeName().equals("java.lang.String")){
+					
 					this.isPrimitive = true;
 				}
 			}
@@ -108,8 +113,8 @@ public class ArrayInfo extends ObjectInfo{
 					changeTime[i] = time;
 				}
 				if(arrayValue[i] != null){
-					arrayValue[i].Linked(this);
-					this.Link();
+					arrayValue[i].linked(this);
+					this.link();
 				}else{
 					ObjectReference tar = (ObjectReference) array.getValue(i);
 					if(tar != null){
@@ -128,6 +133,7 @@ public class ArrayInfo extends ObjectInfo{
 	}
 	
 	public void calculateSize(){
+	
 		if(isPrimitive == true){
 			calculatePrimitive();
 			return;
@@ -395,7 +401,7 @@ public class ArrayInfo extends ObjectInfo{
 		}
 	}
 	
-	private void setPrimitivePosion(int ulx, int uly){
+	protected void setPrimitivePosion(int ulx, int uly){
 		if(set == true){
 			return;
 		}
@@ -566,6 +572,33 @@ public class ArrayInfo extends ObjectInfo{
 		left_half = 0;
 		right_half = 0;
 	}
+
+	public boolean checkArrayValue(int time) {
+		boolean changed = false;
+		if(isPrimitive){
+			for(int i = 0; i < size; i++){
+				if(array.getValue(i) != primitiveArray[i]){
+					changed = true;
+					break;
+				}
+			}
+		}else{
+			for(int i = 0; i < size; i++){
+				if((array.getValue(i) != null && arrayValue[i] != null && array.getValue(i) != arrayValue[i].getObject())
+						|| (array.getValue(i) != null && arrayValue[i] == null)
+						||(array.getValue(i) == null && arrayValue[i] != null)){
+					changed = true;
+					break;
+				}
+			}
+		}
+		if(changed){
+			setLink(time);
+			return true;
+		}else{
+			return false;
+		}
+	}
 	
-	
+
 }

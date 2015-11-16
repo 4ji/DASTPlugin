@@ -31,9 +31,9 @@ public class CellPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private static int nextColor = 0;
 	private static Map<ObjectReference, Color> panelColor = new HashMap<ObjectReference, Color>();
-	private List<CellParts> cp = new ArrayList<CellParts>();
-	private int cp_num = 0;
-	private ObjectReference tar;
+	protected List<CellParts> cp = new ArrayList<CellParts>();
+	protected int cp_num = 0;
+	protected ObjectReference tar;
 	private int length = 0;
 	
 	Dimension maxDim = null;
@@ -67,11 +67,11 @@ public class CellPanel extends JPanel {
 		super.paintComponent(g);
 	}
 
-	private void makeObjectCell(ObjectInfo cell) {
+	public void makeObjectCell(ObjectInfo cell) {
 		Color color;
 		try {
-			String str = tar.referenceType().name() + " : "
-					+ cell.getIndex();
+			String str = tar.referenceType().name() + ":"
+					+ cell.getIndex() + "(id=" + tar.hashCode() + ")";
 			if(cell.copied == true || cell.copy == true){
 				color = setColor(tar);
 				
@@ -86,12 +86,17 @@ public class CellPanel extends JPanel {
 				Entry<String, Object> target = it.next();
 				if(target.getKey().matches(".*" + "Integer" + ".*")){
 					//System.out.println(((ObjectReference) target.getValue()).referenceType());
-					str = target.getKey() + ":" + ((Integer)(target.getValue())).intValue();
+					str = target.getKey() + " : " + ((Integer)(target.getValue())).intValue();
 				}else{
-					
-				str = target.getKey() + ":" + target.getValue(); 
+				if(target.getValue() == null){	
+				str = target.getKey() + " : " + target.getValue(); 
 				cp.add(new CellParts(str));
 				cp_num++;
+				}else{
+					str = target.getKey() + " : " + target.getValue().toString().replace("instance of ", ""); 
+					cp.add(new CellParts(str));
+					cp_num++;
+				}
 				}
 	
 				/*if (f.get(i).type() instanceof PrimitiveType) {
@@ -125,14 +130,23 @@ public class CellPanel extends JPanel {
 						str = ent.getKey() 
 								+ " " 
 								+ cell.getAround()[ent.getValue()].getObject().referenceType().name() 
-								+ ":"
+								+ " : "
 								+ cell.getAround()[ent.getValue()].getIndex();
 						cp.add(new CellParts(str, Color.ORANGE));
 						cp_num++;
 					}else if(cell.getAround()[ent.getValue()].isArray()){
-						str = ent.getKey()
+						if(cell.getAroundFieldName()[ent.getValue()] != null && cell.getAroundFieldName()[ent.getValue()].equals(ent.getKey().replace("[]", "")) ){
+						str = cell.getAround()[ent.getValue()].getObject().referenceType().name()
 								+ " "
-								+ cell.getAround()[ent.getValue()].getIndex();
+								+ent.getKey().replace("[]", "") 
+								;
+						
+						}else if(cell.getAroundArray()[ent.getValue()] != null){
+							str = cell.getAroundArray()[ent.getValue()].getObject().referenceType().name()
+									+ " "
+									+ent.getKey().replace("[]", "") 
+									;
+						}
 						cp.add(new CellParts(str, Color.ORANGE));
 						cp_num++;
 					}
@@ -140,7 +154,7 @@ public class CellPanel extends JPanel {
 					str = ent.getKey()
 							+ " "
 							+ cell.getAnother().get(ent.getKey()).getObject().referenceType().name()
-							+ ":"
+							+ " : "
 							+ cell.getAnother().get(ent.getKey()).getIndex();
 					cp.add(new CellParts(str, Color.ORANGE));
 					cp_num++;
@@ -465,7 +479,7 @@ public class CellPanel extends JPanel {
 		}
 	}
 
-	private void adjustSize() {
+	protected void adjustSize() {
 		Dimension dim;
 		for (int i = 0; i < cp_num; i++) {
 			dim = cp.get(i).getPreferredSize();

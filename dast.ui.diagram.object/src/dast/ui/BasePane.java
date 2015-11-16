@@ -24,18 +24,23 @@ public class BasePane extends JLayeredPane implements ActionListener{
 	 * 
 	 */
 	private static final long serialVersionUID = -2426900381722536632L;
-	private int CellWidth = 0;
-	private int CellLength = 0;
+	private int cellWidth = 0;
+	private int cellLength = 0;
 	private static final int LineLength = 17;	
 	private int bsWidth = 0;
 	private int bsLength = 0;
 	private Visualize frame;
+	
 	
 	int drawMode = 2;
 	
 	
 	private Map<ObjectInfo, CellPanel> cellpanel = new HashMap<ObjectInfo, CellPanel>();
 	private List<ObjectInfo> targetObject;
+	private HashMap<Integer, Integer> columnWidth;
+	private HashMap<Integer, Integer> rowLength;
+	
+	private boolean mode = false;
 	
 	public void paintComponent(Graphics g){
 		super.paintComponent(g);
@@ -43,25 +48,28 @@ public class BasePane extends JLayeredPane implements ActionListener{
 		//connect(g2);
 	}
 	
-	BasePane(List<ObjectInfo> tar, Visualize frame){
+	BasePane(List<ObjectInfo> tar, Visualize frame, boolean mode){
 		super();
 		this.frame = frame;
+		this.mode = mode;
 		setLayout(null);
 		setBackground(Color.WHITE);
 				
 		setPanel(tar);
 	
-		this.setPreferredSize(new Dimension(2000,2000));
+		this.setPreferredSize(new Dimension(4000,4000));
 		
 		setLinePanel();
 		this.setOpaque(true);
 		revalidate();
-		setButton();
+		//setButton();
 		this.setVisible(true);
 	}
 	
 	private void setPanel(List<ObjectInfo> tar){
 		this.targetObject = tar;
+		columnWidth = new HashMap<Integer, Integer>();
+		rowLength = new HashMap<Integer, Integer>();
 		cellpanel.clear();
 
 		for(Iterator<ObjectInfo> it = tar.iterator(); it.hasNext();){
@@ -69,14 +77,29 @@ public class BasePane extends JLayeredPane implements ActionListener{
 			/*System.out.println(oin.object.type());
 			System.out.println(oin.isLinked() + " "+ oin.hasLink() + " " + oin.set);*/
 			if((oin.isLinked() == true || oin.hasLink() == true) && oin.set == true){
-				cellpanel.put(oin ,new CellPanel(oin));
-				if(cellpanel.get(oin).getPreferredSize().width > CellWidth && oin.isArray() == false){
-					CellWidth = cellpanel.get(oin).getPreferredSize().width;
+				
+				if(!mode){
+					cellpanel.put(oin ,new CellPanel(oin));
+				}else{
+					cellpanel.put(oin ,new CellPanelVerJive(oin));
 				}
-				if(cellpanel.get(oin).getPreferredSize().height > CellLength && oin.isArray() == false){
-					CellLength = cellpanel.get(oin).getPreferredSize().height;
+				/*if(cellpanel.get(oin).getPreferredSize().width > cellWidth && oin.isArray() == false){
+					cellWidth = cellpanel.get(oin).getPreferredSize().width;
+				}
+				if(cellpanel.get(oin).getPreferredSize().height > cellLength && oin.isArray() == false){
+					cellLength = cellpanel.get(oin).getPreferredSize().height;
 
+				}*/
+				Integer length = rowLength.get(oin.getPy());
+				Integer width = columnWidth.get(oin.getPx());
+				if(length == null || cellpanel.get(oin).getPreferredSize().height > length){
+					rowLength.put(new Integer(oin.getPy()), new Integer(cellpanel.get(oin).getPreferredSize().height));
 				}
+				if(width == null || cellpanel.get(oin).getPreferredSize().width > width){
+					columnWidth.put(new Integer(oin.getPx()), new Integer(cellpanel.get(oin).getPreferredSize().width));
+				}
+				
+				
 			}
 		}
 		
@@ -86,12 +109,39 @@ public class BasePane extends JLayeredPane implements ActionListener{
 			CellPanel panel = entry.getValue();
 			try{
 			if(panel != null ){
-				if(panel.getCellLength() > CellLength /2){
-					panel.setBounds(object.getPx() * (CellWidth+ 20) + 25  , object.getPy() * (CellLength+ 40) + 20, panel.getMaximumSize().width,panel.getMaximumSize().height );
-				}else{
-					panel.setBounds(object.getPx() * (CellWidth+ 20) + 25  , object.getPy() * (CellLength+ 40) +(CellLength /2) - panel.getCellLength()/2, panel.getMaximumSize().width,panel.getMaximumSize().height );
+				/*int px = 0;
+				int py = 0;
+				for(int i = 0; i < object.getPx(); i++){
+					px += rowLength.get(i);
 				}
-				add(panel, JLayeredPane.DEFAULT_LAYER);
+				for(int i = 0; i < object.getPy(); i++){
+					py += columnWidth.get(i);
+				}
+				if(panel.getCellLength() > cellLength /2){
+					panel.setBounds(object.getPx() * (columnWidth.get(object.getPx())+ 40) + 25  , object.getPy() * (rowLength.get(object.getPy())+ 40) + 20, panel.getMaximumSize().width,panel.getMaximumSize().height );
+				}else{
+					panel.setBounds(object.getPx() * (columnWidth.get(object.getPx())+ 40) + 25  , object.getPy() * (rowLength.get(object.getPy())+ 40) +(rowLength.get(object.getPy()) /2) - panel.getCellLength()/2, panel.getMaximumSize().width,panel.getMaximumSize().height );
+				}
+				add(panel, JLayeredPane.DEFAULT_LAYER);*/
+				if(panel != null ){
+					int px = 0;
+					int py = 0;
+					for(int i = 0; i < object.getPy(); i++){
+						if(rowLength.get(i) != null){
+						py += rowLength.get(i);
+						}
+						py += 60;
+					}
+					for(int i = 0; i < object.getPx(); i++){
+						if(columnWidth.get(i) != null){
+						px += columnWidth.get(i);
+						}
+						px += 60;
+					}
+						panel.setBounds(px +  25  , py + 40, panel.getMaximumSize().width,panel.getMaximumSize().height );
+		
+					add(panel, JLayeredPane.DEFAULT_LAYER);
+				}
 			}
 			}catch(Exception e){
 				e.printStackTrace();
@@ -100,7 +150,12 @@ public class BasePane extends JLayeredPane implements ActionListener{
 	}
 	
 	private void setLinePanel(){
-		LinePanel line = new LinePanel(targetObject, cellpanel);
+		LinePanel line;
+		if(!mode){
+			line = new LinePanel(targetObject, cellpanel, this);
+		}else{
+			line = new LinePanelVerJive(targetObject, cellpanel, this);
+		}
 		this.add(line, JLayeredPane.PALETTE_LAYER);
 		line.setSize(this.getPreferredSize());
 	}
@@ -171,5 +226,27 @@ public class BasePane extends JLayeredPane implements ActionListener{
 		return cellpanel;
 	}
 
+	
+	public int getRowLength(int x){
+		if(rowLength.get(x) != null){
+			return rowLength.get(x);
+		}else{
+			return 0;
+		}
+	}
+	
+	public int getColumnWidth(int y){
+		if(columnWidth.get(y) != null){
+			return columnWidth.get(y);
+		}else{
+			return 0;
+		}
+	}
+	
+	public void setJiveMode(boolean m){
+		
+		this.mode = m;
+		System.out.println(mode);
+	}
 	
 }

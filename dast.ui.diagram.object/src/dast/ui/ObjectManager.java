@@ -71,9 +71,11 @@ public class ObjectManager {
 		List<ObjectInfo> tar = objectInfo;
 		if(visualize == null){
 			set(tar);
+			//shortSpace(tar);
 			visualize = new Visualize(tar);
 		}else{	
 			set(tar);
+			//shortSpace(tar);
 			visualize.reDraw(tar);
 		}
 		}
@@ -82,7 +84,58 @@ public class ObjectManager {
 		
 	}
 	
-	private void paramReset(){
+	private void shortSpace(List<ObjectInfo> tar){
+		int maxX = 0, maxY = 0;
+		for(Iterator<ObjectInfo> it = tar.iterator(); it.hasNext();){
+			ObjectInfo oi = it.next();
+			if(oi.getPx() > maxX){
+				maxX = oi.getPx();
+			}
+			if(oi.getPy() > maxY){
+				maxY = oi.getPy();
+			}
+		}
+
+		for(int i = 0; i < maxX; i++){
+			boolean fx = false;
+			for(Iterator<ObjectInfo> it = tar.iterator(); it.hasNext();){
+				ObjectInfo oi = it.next();
+				if(oi.px == i){
+					fx = true;
+				}
+				if(fx){
+					break;
+				}
+			}
+			if(!fx){
+				for(Iterator<ObjectInfo> it = tar.iterator(); it.hasNext();){
+					ObjectInfo oi2 = it.next();
+					if(oi2.px > i){
+						oi2.px--;
+					}
+				}
+			}
+		}
+
+		for(int i = 0; i < maxY; i++){
+			boolean fy = false;
+			for(Iterator<ObjectInfo> it = tar.iterator(); it.hasNext();){
+				ObjectInfo oi = it.next();
+				if(oi.py == i){
+					fy = true;
+				}
+			}
+			if(!fy){
+				for(Iterator<ObjectInfo> it = tar.iterator(); it.hasNext();){
+					ObjectInfo oi2 = it.next();
+					if(oi2.py > i){
+						oi2.py--;
+					}
+				}
+			}
+		}
+	}
+	protected void paramReset(){
 		for(Iterator<ObjectInfo> it = objectInfo.iterator(); it.hasNext();){
 			ObjectInfo oin = it.next();
 			oin.reset();
@@ -194,11 +247,11 @@ public class ObjectManager {
 		if(obInfo != null){
 			if(type != null && type instanceof ArrayType){
 				addArray(tar, field, (ObjectReference)value);
-				obInfo.Link();
+				obInfo.link();
 			}
 			try {
-				obInfo.setLink(time, event.field());
-			} catch (IllegalArgumentException | IllegalAccessException e) {
+				obInfo.setLink(time, event.field(), value);
+			} catch (IllegalArgumentException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -254,8 +307,8 @@ public class ObjectManager {
 				addArray(object, field, (ObjectReference)value);
 			}
 			try {
-				obInfo.setLink(time, field);
-			} catch (IllegalArgumentException | IllegalAccessException e) {
+				obInfo.setLink(time, field, value);
+			} catch (IllegalArgumentException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -272,11 +325,11 @@ public class ObjectManager {
 				
 				if(type != null && type instanceof ArrayType){
 					addArray(object, field, (ObjectReference)value);
-					obj.Link();
+					obj.link();
 				}
 				try {
-					obj.setLink(time, field);
-				} catch (IllegalArgumentException | IllegalAccessException e) {
+					obj.setLink(time, field, value);
+				} catch (IllegalArgumentException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -346,7 +399,7 @@ public class ObjectManager {
 				}
 				if(tar.type() != null && tar.type() instanceof ArrayType){
 					addArray(tar, field, objr);
-					object.Link();
+					object.link();
 				}
 			}
 			
@@ -370,5 +423,45 @@ public class ObjectManager {
 				}
 			}
 		}
+	}
+
+	public boolean checkArray() {
+		boolean changed = false;
+		for(Iterator<ArrayInfo> it = arrayInfo.iterator(); it.hasNext(); ){
+			ArrayInfo tar = it.next();
+			if(tar.checkArrayValue(time)){
+				changed = true;
+			}
+		}
+		
+		return changed;
+	}
+	
+	public int getTime(){
+		return time;
+	}
+	
+	public void incTime(){
+		time++;
+	}
+	
+	public List<ObjectReference> getTargetObjectList(){
+		return targetObject;
+	}
+	
+	public List<ObjectInfo> getObjectInfoList(){
+		return objectInfo;
+	}
+	
+	public List<ArrayInfo> getArrayInfoList(){
+		return arrayInfo;
+	}
+	
+	public Visualize getVisualize(){
+		return visualize;
+	}
+	
+	public void setVisualize(Visualize v){
+		visualize = v;
 	}
 }

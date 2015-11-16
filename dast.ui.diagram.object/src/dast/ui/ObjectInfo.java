@@ -56,7 +56,7 @@ public class ObjectInfo {
 	
 	protected boolean set = false;
 	protected boolean calculated = false;
-	private boolean linked = false;
+	protected boolean linked = false;
 	private boolean link = false;
 	
 	private ObjectInfo[] around = new ObjectInfo[8];
@@ -67,19 +67,21 @@ public class ObjectInfo {
 	
 	private ArrayInfo[] aroundArray = new ArrayInfo[8]; 
 	private String[] aroundArrayName = new String[8];
-	private int with = -1;
+	protected int with = -1;
 	private String[] aroundFieldName = new String[8];
 	private int[] aroundTime = new int[8];
 	private Map<String, Object> anotherField = new HashMap<String,Object>();
-	private int around_size[]  = { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	protected int around_size[]  = { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	private int width = 0;
 	private int length = 0;
 	protected int ownLength = 1;
-	private int up_half = 0;
-	private int bottom_half = 0;
+	protected int up_half = 0;
+	protected int bottom_half = 0;
 	private int left_half= 0;
 	private int right_half = 0;
+	protected int group = 0;
 
+	
 	protected int px;
 	protected int py;
 	
@@ -91,7 +93,8 @@ public class ObjectInfo {
 	private String primitiveType;
 	private ObjectInfo lastLinked;
 	private int headPoint = 0;
-	
+
+
 	
 	ObjectInfo(ObjectReference tar,Type type, ClassDefinition def, ObjectManager om){
 		object = tar;
@@ -103,7 +106,6 @@ public class ObjectInfo {
 		index = def.getNumObject();
 		}
 		this.copy = false;
-		
 		//System.out.println("make " + tar);
 
 		
@@ -120,7 +122,7 @@ public class ObjectInfo {
 		this.anotherField = source.anotherField;
 		this.linked = source.isLinked();
 		om.addObject(this);
-		
+
 	}
 	
 	ObjectInfo(Value v){
@@ -129,7 +131,7 @@ public class ObjectInfo {
 			i = ((IntegerValue)v).value();
 			primitiveType = "int";
 		}
-		
+
 	}
 	
 	public void setField(){
@@ -170,9 +172,12 @@ public class ObjectInfo {
 			}else if(value instanceof ObjectReference){
 				if(((ObjectReference) value).referenceType().name().equals("java.lang.Integer")){
 					anotherField.put("Integer " + field.name(),  (ObjectReference)value);
+				}else{
+					anotherField.put(field.type().name() + " " + field.name(), value);
 				}
 			}else{
-				anotherField.put(value.type().toString(), value);
+				anotherField.put(field.type().name() + " " + field.name(), value);
+				
 			}
 				
 		} catch (ClassNotLoadedException e) {
@@ -201,6 +206,7 @@ public class ObjectInfo {
 			if(direction == null){
 				 direction = fieldDirection.get(field.name() + "[]");
 			}
+			
 			if(direction != null && object.getValue(field) != null){
 				ObjectInfo obin = om.searchObjectInfo((ObjectReference)object.getValue(field));
 				if(direction <= 7 && obin!=null && obin != around[direction]){
@@ -222,34 +228,59 @@ public class ObjectInfo {
 						}else{
 							another.put(field.name(),  obin);
 						}
-					}else if(obin != null && obin.isArray() && ((ArrayInfo)obin).isPrimitive()){
+					}else if(obin != null && obin.isArray() && !((ArrayInfo)obin).isPrimitive() && obin != around[direction]){
+						around[direction] = aroundArray[direction];
 						getAroundArray()[direction] = (ArrayInfo)obin;
 						if(field.name() != getAroundArrayName()[direction]){
 							String copy = getAroundArrayName()[direction];
 							getAroundArrayName()[direction] = aroundFieldName[direction];
 							aroundFieldName[direction] = copy;							
 						}
-					}else if(around[direction].isArray() && ((ArrayInfo)around[direction]).isPrimitive()){
-						getAroundArray()[direction] = (ArrayInfo)around[direction];
-						around[direction] = obin;
-						if(field.name() != aroundFieldName[direction]){
+					}else if(obin != null && around[direction].isArray() && ((ArrayInfo)obin).isPrimitive()){
+						aroundArray[direction] = (ArrayInfo)obin;
+						if(field.name() != aroundArrayName[direction]){
 							String copy = getAroundArrayName()[direction];
 							getAroundArrayName()[direction] = aroundFieldName[direction];
 							aroundFieldName[direction] = copy;							
 						}
+
 					}
 				}
 				if(direction <= 7 && around[direction] != null){
-					around[direction].Linked(this);
-					this.Link();
+					around[direction].linked(this);
+					this.link();
 				}
 				if(direction <= 7 && getAroundArray()[direction] != null){
-					getAroundArray()[direction].Linked(this);
-					this.Link();
+					getAroundArray()[direction].linked(this);
+					this.link();
 				}
 			}else if(direction != null && direction <= 7 && object.getValue(field) == null){
 				around[direction] = null;
+			}else if(direction == null){
+				setAnotherField(field, object.getValue(field) );
 			}
+	}
+	
+	public void setLink(int time, Field field, Value value){
+		try {
+			setLink(time, field);
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		Map<String, Integer> fieldDirection = def.getFields();
+		Integer direction = fieldDirection.get(field.name());
+		if(direction == null){
+			 direction = fieldDirection.get(field.name() + "[]");
+		}
+		
+		if(direction == null){
+			setAnotherField(field, value);
+		}
 	}
 	/*public void setLink(Field field) throws IllegalArgumentException, IllegalAccessException{
 		//List<Field> fields = object.referenceType().fields();
@@ -300,10 +331,6 @@ public class ObjectInfo {
 			}
 		//}
 	}*/
-		
-	
-	
-	
 	boolean checkObject(Object obj){
 		if(obj == object){
 			return true;
@@ -315,11 +342,13 @@ public class ObjectInfo {
 		return tar.equals(object);
 	}	
 	
+
 	public int calculateSize(int totalHeight){
 		calculateSize();
 		headPoint = totalHeight;
 		return this.length;
 	}
+	
 	public void calculateSize(){
 
 		calculated = true;
@@ -817,12 +846,14 @@ public class ObjectInfo {
 
 	}*/
 	
-	public void Linked(ObjectInfo from){
-		this.lastLinked = from;
-		this.linked = true;
+	public void linked(ObjectInfo from){
+		if(from != this){
+			this.lastLinked = from;
+				this.linked = true;
+		};
 	}
 	
-	public void Link() {
+	public void link() {
 		this.link = true;
 	}
 	
@@ -917,4 +948,9 @@ public class ObjectInfo {
 	public HashMap<String, ObjectInfo> getAnother(){
 		return another;
 	}
+	
+	public int[] getAroundTime(){
+		return aroundTime;
+	}
+
 }

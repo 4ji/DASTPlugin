@@ -32,9 +32,54 @@ public class Visualize extends JFrame{
 	private JScrollPane mainPanel;
 	private List<JScrollPane> panelList = new ArrayList<JScrollPane>();
 	private List<ObjectInfo> lastCellList;
+	private boolean jiveMode = false; 
 
+	Visualize(List<ObjectInfo> cell, boolean mode){
+		this.setSize(900, 700);
+		this.setTitle("ver14");
+		this.setBackground(Color.WHITE);
+		this.setLocationRelativeTo(null);
+		this.jiveMode = mode;
+		
+		//this.setLayout(null);
+		
+		/*for(Iterator<ObjectInfo> it = cell.iterator(); it.hasNext();){
+			ObjectInfo oi = it.next();
+			System.out.println(oi);
+		}
+		System.out.println("--");*/
+		
+		panel = new BasePane(cell, this, jiveMode);
+		lastCellList = cell;
+		JScrollPane scrollpane = new JScrollPane(panel);
+		
+		contentPane = getContentPane();
+		contentPane.add(scrollpane);
+		
+		
+		scrollpane.setVisible(true);
+		mainPanel = scrollpane;
+		
+		//line = new LinePanel(cell, panel.getCellPanel(), panel.getPreferredSize());
+		//line.setVisible(true);
+		//contentPane.add(line);
+		//mainLine = line;
+		
+		panelList.add(scrollpane);
+		this.setVisible(true);
+		
+		this.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				contentPane.invalidate();
+				contentPane.validate();
+			}
+		});
+		
+		
+	}
 	Visualize(List<ObjectInfo> cell){
-		this.setSize(900, 1000);
+		this.setSize(900, 700);
 		this.setTitle("ver14");
 		this.setBackground(Color.WHITE);
 		this.setLocationRelativeTo(null);
@@ -47,7 +92,7 @@ public class Visualize extends JFrame{
 		}
 		System.out.println("--");*/
 		
-		panel = new BasePane(cell, this);
+		panel = new BasePane(cell, this, jiveMode);
 		lastCellList = cell;
 		JScrollPane scrollpane = new JScrollPane(panel);
 		
@@ -83,7 +128,7 @@ public class Visualize extends JFrame{
 		}
 		System.out.println("--");*/
 		
-		panel = new BasePane(cell, this);
+		panel = new BasePane(cell, this, jiveMode);
 		JScrollPane scrollpane = new JScrollPane(panel);
 		
 		contentPane = getContentPane();
