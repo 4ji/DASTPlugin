@@ -60,6 +60,7 @@ final class EventHandlerFactory
   EventHandlerFactory(final DastDebugTarget owner)
   {
     this.owner = owner;
+    createDastEnvironment();
     this.fieldReadHandler = new AccessWatchpointHandler();
     this.fieldWriteHandler = new ModificationWatchpointHandler();
     this.classPrepareHandler = new ClassPrepareHandler();
@@ -68,7 +69,7 @@ final class EventHandlerFactory
     this.exceptionHandler = new ExceptionHandler();
     this.classes = new HashSet<ReferenceType>();
 
-    createDastEnvironment();
+   
     /*try {
 		this.layoutDefinition = new ReadDast(new FileInputStream("D:\\User\\Desktop\\DASTFile"));
 		this.objectManager = new ObjectManager(layoutDefinition.getClassDefinition());
@@ -101,7 +102,7 @@ final class EventHandlerFactory
 			this.objectManager = null;
 			e.printStackTrace();
 		} catch (CoreException e) {
-			// TODO 自動生成された catch ブロック
+			// TODO 閾ｪ蜍慕函謌舌＆繧後◆ catch 繝悶Ο繝�繧ｯ
 			e.printStackTrace();
 		}
 
@@ -153,12 +154,12 @@ final class EventHandlerFactory
         final boolean suspendVote, final EventSet eventSet)
     {
       classes.add(((ClassPrepareEvent) event).referenceType());
-      if (!owner.isActive())
-      {
-        return true;
+
+      if(objectManager.isDefinedClass(((ClassPrepareEvent)event).referenceType()) != null){
+    	  createFieldRequests(target, ((ClassPrepareEvent) event).referenceType());
+    	  return true;
       }
-      createFieldRequests(target, ((ClassPrepareEvent) event).referenceType());
-      return true;
+      return false;
     }
 
     protected void createFieldRequests(final JDIDebugTarget target, final ReferenceType refType)
@@ -469,19 +470,21 @@ final class EventHandlerFactory
     }
 
     @Override
-    public boolean handleEvent(final Event event, final JDIDebugTarget target,
+    public synchronized boolean handleEvent(final Event event, final JDIDebugTarget target,
         final boolean suspendVote, final EventSet eventSet)
     {
       if (owner.isActive())
       {
-      	ModificationWatchpointEvent e = (ModificationWatchpointEvent)event;
-        if(objectManager != null && e != null && objectManager.classPrepare(e.object().referenceType())){
-        	objectManager.renew(e);
-        	objectManager.draw();
-        }
+    	  ModificationWatchpointEvent e = (ModificationWatchpointEvent)event;
+          if(objectManager != null && e != null && objectManager.classPrepare(e.object().referenceType())){
+          	objectManager.fieldWrite(e);
+          	objectManager.draw();
+          }
+      	
       }
       return true;
     }
+   
   }
 }
 
