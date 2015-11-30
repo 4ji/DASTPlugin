@@ -17,6 +17,7 @@ import com.sun.jdi.Type;
 import com.sun.jdi.Value;
 import com.sun.jdi.event.ModificationWatchpointEvent;
 
+@SuppressWarnings("restriction")
 public class ObjectManager {	
 	private List<ReferenceType> preparedClass = new ArrayList<ReferenceType>();
 	private List<ClassDefinition> targetClass = new ArrayList<ClassDefinition>();
@@ -35,24 +36,46 @@ public class ObjectManager {
 	public ObjectManager(List<ClassDefinition> cld){
 		targetClass = cld;
 	}
+
 	
 	
-	/*public void setLink(){
-		if(objectInfo.size() > 0){
-		for(Iterator<ObjectInfo> it = objectInfo.iterator(); it.hasNext();){
-			ObjectInfo oinfo = (ObjectInfo)it.next();
-			try {
-				oinfo.setLink(time);
-			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+	public void fieldWrite(ModificationWatchpointEvent e){
+		incTime();
+		ObjectReference object = e.object();
+		ObjectInfo oin = searchObjectInfo(object);
+		if(oin == null){
+			oin = createObjectInfo(object);
+		}
+		
+		if(e.valueToBe() instanceof ObjectReference){
+			ObjectReference value = (ObjectReference)e.valueToBe();
+			if(isDefinedClass(value.referenceType()) != null){
+				ObjectInfo valueOin = searchObjectInfo(value);
+				if(valueOin == null){
+					valueOin = createObjectInfo(value);
+				}
 			}
 		}
+				
+		try {
+			oin.setLink(time, e.field());
+		} catch (IllegalArgumentException ex1) {
+			// TODO Auto-generated catch block
+			ex1.printStackTrace();
+		} catch (IllegalAccessException ex1) {
+			// TODO Auto-generated catch block
+			ex1.printStackTrace();
 		}
-	}*/
+		
+	}
+	
+	public ObjectInfo createObjectInfo(ObjectReference tar){
+			ClassDefinition cld = isDefinedClass(tar.referenceType());				
+			getTargetObject().add(tar);
+			ObjectInfo object = new ObjectInfo(tar, tar.referenceType(), cld, this);
+			objectInfo.add(object);
+			return object;
+	}
 	
 	public ObjectInfo searchObjectInfo(ObjectReference tar){
 		for(Iterator<ObjectInfo> it = objectInfo.iterator(); it.hasNext();){
@@ -65,18 +88,28 @@ public class ObjectManager {
 		return null;
 	}
 	
+	ObjectInfo isMadeObjectInfo(ObjectReference tar){
+		for(Iterator<ObjectInfo> it = objectInfo.iterator(); it.hasNext();){
+			ObjectInfo obInfo = (ObjectInfo)it.next();
+			if(obInfo.getObject().equals(tar)){
+				return obInfo;
+			}
+		}
+		return null;
+	}
+	
 	public void draw(){
 		
 		if(objectInfo.size() > 0){
-		List<ObjectInfo> tar = objectInfo;
+		
 		if(visualize == null){
-			set(tar);
+			setPosion(objectInfo);
 			//shortSpace(tar);
-			visualize = new Visualize(tar);
+			visualize = new Visualize(objectInfo);
 		}else{	
-			set(tar);
+			setPosion(objectInfo);
 			//shortSpace(tar);
-			visualize.reDraw(tar);
+			visualize.reDraw(objectInfo);
 		}
 		}
 		paramReset();
@@ -142,7 +175,7 @@ public class ObjectManager {
 		}
 			
 	}
-	public void set(List<ObjectInfo> tar) {	
+	public void setPosion(List<ObjectInfo> tar) {	
 		ArrayList<ObjectInfo> another = new ArrayList<ObjectInfo>();
 		int totalHeight = 0;
 		for(Iterator<ObjectInfo> it = tar.iterator(); it.hasNext();){
@@ -228,55 +261,7 @@ public class ObjectManager {
 		return null;
 	}
 	
-	public void renew(ModificationWatchpointEvent event){
-		time++;
-		ObjectReference tar = event.object();
-		ObjectInfo obInfo = isMadeObjectInfo(event.object());
-		Value value = event.valueToBe();
-		Field field = event.field();
-		Type type = null;
-		if(value != null){
-			type = value.type();
 
-		}
-		
-		if(value != null && value.type() instanceof ReferenceType){
-			makeObjectInfo((ObjectReference)value, field);
-		}
-		
-		if(obInfo != null){
-			if(type != null && type instanceof ArrayType){
-				addArray(tar, field, (ObjectReference)value);
-				obInfo.link();
-			}
-			try {
-				obInfo.setLink(time, event.field(), value);
-			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}else{
-			/*ClassDefinition cld = isDefinedClass((ReferenceType) tar.referenceType());
-			if(cld != null){
-				getTargetObject().add(tar);
-				ObjectInfo object = new ObjectInfo(tar, (ReferenceType)tar.referenceType(), cld, this);
-				object.setField();
-				objectInfo.add(object);
-				try {
-					object.setLink(time, event.field());
-				} catch (IllegalArgumentException | IllegalAccessException e) {
-					e.printStackTrace();
-				}
-				if(type != null && type instanceof ArrayType){
-					addArray(tar, field, (ObjectReference)value);
-					object.Link();
-				}
-				
-			}*/
-			makeObjectInfo(tar, event.field());			
-		}
-		
-	}
 	
 	public void addArray(ObjectReference from,Field field, ObjectReference value){
 		if(searchObjectInfo(value) == null){
@@ -289,80 +274,11 @@ public class ObjectManager {
 	}
 
 
-	public void renew(ObjectReference object, Field field, Value value){
-		
-		time++;
-		
- 		ObjectInfo obInfo = isMadeObjectInfo(object);
-		Type type = null;
-		if(value != null){
-			type = value.type();
-		}
-		
-		if(value != null && type instanceof ReferenceType){
-			makeObjectInfo((ObjectReference)value, field);
-		}
-		if(obInfo != null){		
-			if(type != null && type instanceof ArrayType){
-				addArray(object, field, (ObjectReference)value);
-			}
-			try {
-				obInfo.setLink(time, field, value);
-			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-
-		}else{
-			if(object != null){
-			ClassDefinition cld = isDefinedClass((ClassType) object.referenceType());
-			if(cld != null){
-				targetObject.add(object);
-				ObjectInfo obj = new ObjectInfo(object, (ClassType)object.referenceType(), cld, this);
-				obj.setField();
-				objectInfo.add(obj);
-				
-				if(type != null && type instanceof ArrayType){
-					addArray(object, field, (ObjectReference)value);
-					obj.link();
-				}
-				try {
-					obj.setLink(time, field, value);
-				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			}
-		}
-		
-		for(Iterator<ArrayInfo> it = arrayInfo.iterator(); it.hasNext();){
-			ArrayInfo ai = it.next();
-			ai.setLink(time);
-		}
-		
-		if(object != null){
-			check(object);
-		}
-		 
-	}	
+	
 	
 
 	
-	ObjectInfo isMadeObjectInfo(ObjectReference tar){
-		//System.out.println();
-		//System.out.println("target:"+tar);
-		for(Iterator<ObjectInfo> it = objectInfo.iterator(); it.hasNext();){
-			ObjectInfo obInfo = (ObjectInfo)it.next();
-			//System.out.println("next:"+obInfo.getobject());
-			if(obInfo.getObject().equals(tar)){
-				return obInfo;
-			}
-		}
-		//System.out.println("false:" +  tar);
-		return null;
-	}
+	
 	
 
 	public List<ObjectReference> getTargetObject() {
@@ -381,30 +297,7 @@ public class ObjectManager {
 		objectInfo.add(tar);
 	}
 
-	public void makeObjectInfo(ObjectReference tar, Field field){
-		ClassDefinition cld =  isDefinedClass((ReferenceType)tar.type());
-		if(cld != null){
-			ObjectInfo obji = isMadeObjectInfo(tar);
-			if(obji == null){
-				ObjectReference objr = tar;
-				getTargetObject().add(objr);
-				ObjectInfo object = new ObjectInfo(objr, objr.referenceType(), cld, this);
-				objectInfo.add(object);
-				//System.out.println("add " + toBe);
-				object.setField();
-				try {
-					object.setLink(time, field);
-				} catch (IllegalArgumentException | IllegalAccessException e) {
-					e.printStackTrace();
-				}
-				if(tar.type() != null && tar.type() instanceof ArrayType){
-					addArray(tar, field, objr);
-					object.link();
-				}
-			}
-			
-		}
-	}
+
 	
 	public void check(ObjectReference obj){
 		ObjectInfo obin = isMadeObjectInfo(obj);
