@@ -21,9 +21,9 @@ public enum JDIDebugFactoryImpl {
 	public static IDebugTarget createDebugTarget(final ILaunch launch,
 			final VirtualMachine vm, final String name, final IProcess process,
 			final boolean allowTerminate, final boolean allowDisconnect,
-			final boolean resume, final IDastProject project) {
+			final boolean resume, final IDastProject project, String projectName) {
 		return INSTANCE.newDebugTarget(launch, vm, name, process,
-				allowTerminate, allowDisconnect, resume, project);
+				allowTerminate, allowDisconnect, resume, project, projectName);
 	}
 
 	 /**
@@ -64,13 +64,13 @@ public enum JDIDebugFactoryImpl {
 	private IDebugTarget newDebugTarget(final ILaunch launch,
 			final VirtualMachine vm, final String name, final IProcess process,
 			final boolean allowTerminate, final boolean allowDisconnect,
-			final boolean resume, final IDastProject project) {
+			final boolean resume, final IDastProject project, final String projectName) {
 		final IJavaDebugTarget[] target = new IJavaDebugTarget[1];
 		final IWorkspaceRunnable r = new IWorkspaceRunnable() {
 			@Override
 			public void run(final IProgressMonitor m) {
 				target[0] = new DastDebugTarget(launch, vm, name, allowTerminate,
-						allowDisconnect, process, resume, project);
+						allowDisconnect, process, resume, project, projectName);
 			}
 		};
 		try {

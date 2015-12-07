@@ -27,8 +27,8 @@ import com.sun.jdi.request.EventRequestManager;
 import dast.debug.DastDebugPlugin;
 import dast.model.IDastProject;
 
-/*implements ����IDastDebugTarget�����O
- * ����ɔ���@Override�̈ꕔ���\�b�h���폜
+/*implements �ｿｽ�ｿｽ�ｿｽ�ｿｽIDastDebugTarget�ｿｽ�ｿｽ�ｿｽ�ｿｽ�ｿｽO
+ * �ｿｽ�ｿｽ�ｿｽ�ｿｽﾉ費ｿｽ�ｿｽ�ｿｽ@Override�ｿｽﾌ一部�ｿｽ�ｿｽ�ｿｽ\�ｿｽb�ｿｽh�ｿｽ�ｿｽ�ｿｽ尞�
  */
 
 @SuppressWarnings({ "restriction", "unused" })
@@ -39,16 +39,18 @@ class DastDebugTarget extends JDIDebugTarget implements IJavaDebugTarget
 	private boolean isStarted;
 	private boolean isStopped;
 	private final EventHandlerFactory eventHandlerFactory;
+	private String projectName; 
 
 
 	DastDebugTarget(final ILaunch launch, final VirtualMachine jvm, final String name,
 		      final boolean supportTerminate, final boolean supportDisconnect, final IProcess process,
-		      final boolean resume, final IDastProject project)
+		      final boolean resume, final IDastProject project, final String projectName)
 	  {
 		    super(launch, jvm, name, supportTerminate, supportDisconnect, process, resume);
 		    this.project = project;
 		    this.isStarted = true;
 		    this.isStopped = false;
+		    this.projectName = projectName;
 		    this.eventHandlerFactory = new EventHandlerFactory(this);
 		  }
 
@@ -60,5 +62,9 @@ class DastDebugTarget extends JDIDebugTarget implements IJavaDebugTarget
 
 	  public synchronized IDastProject getProject(){
 		  return this.project;
+	  }
+	  
+	  public String getProjectName(){
+		  return this.projectName;
 	  }
 }

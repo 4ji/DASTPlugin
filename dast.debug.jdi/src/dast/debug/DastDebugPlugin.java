@@ -28,10 +28,11 @@ public class DastDebugPlugin extends Plugin
 
 	  public static IDebugTarget createDebugTarget(final ILaunch launch, final VirtualMachine vm,
 	      final String name, final IProcess process, final boolean allowTerminate,
-	      final boolean allowDisconnect, final boolean resume, final IDastProject project)
+	      final boolean allowDisconnect, final boolean resume, final IDastProject project,
+	      String projectName)
 	  {
 	    return JDIDebugFactoryImpl.createDebugTarget(launch, vm, name, process, allowTerminate,
-	        allowDisconnect, resume, project);
+	        allowDisconnect, resume, project, projectName);
 	  }
 
 	  

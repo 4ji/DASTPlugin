@@ -16,8 +16,9 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.debug.core.DebugException;
-import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 
+import com.sun.jdi.ArrayType;
+import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.Field;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.event.AccessWatchpointEvent;
@@ -85,13 +86,12 @@ final class EventHandlerFactory
   private void createDastEnvironment(){
 	  try {
 		  IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		  String projectName = owner.getLaunch().getLaunchConfiguration().getWorkingCopy()
-		  .getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, "");
+		  String projectName = owner.getProjectName();
 
 		  IPath path = root.getLocation();
-		  System.out.println(path);
+		  //System.out.println(path);
 		  String dastPath = path.toString() + "\\"+ projectName + "\\DASTFile" ;
-		  System.out.println(dastPath);
+		  //System.out.println(dastPath);
 
 
 		  this.layoutDefinition = new ReadDast(new FileInputStream(dastPath));
@@ -100,9 +100,6 @@ final class EventHandlerFactory
 			// TODO Auto-generated catch block
 			this.layoutDefinition = null;
 			this.objectManager = null;
-			e.printStackTrace();
-		} catch (CoreException e) {
-			// TODO 閾ｪ蜍慕函謌舌＆繧後◆ catch 繝悶Ο繝�繧ｯ
 			e.printStackTrace();
 		}
 
@@ -122,11 +119,17 @@ final class EventHandlerFactory
     }
 
     @Override
-    public boolean handleEvent(final Event event, final JDIDebugTarget target,
+    public synchronized boolean handleEvent(final Event event, final JDIDebugTarget target,
         final boolean suspendVote, final EventSet eventSet)
     {
       if (owner.isActive())
       {
+    	AccessWatchpointEvent e = (AccessWatchpointEvent)event;
+    	if(e.object().getValue(e.field()).type() instanceof ArrayType){
+			System.out.println("array");
+			objectManager.arrayWrite(e);
+			objectManager.draw();
+		}
 
       }
       return true;
@@ -153,7 +156,7 @@ final class EventHandlerFactory
     public boolean handleEvent(final Event event, final JDIDebugTarget target,
         final boolean suspendVote, final EventSet eventSet)
     {
-      classes.add(((ClassPrepareEvent) event).referenceType());
+     //classes.add(((ClassPrepareEvent) event).referenceType());
 
       if(objectManager.isDefinedClass(((ClassPrepareEvent)event).referenceType()) != null){
     	  createFieldRequests(target, ((ClassPrepareEvent) event).referenceType());
