@@ -14,6 +14,7 @@ import java.util.Map;
 
 import java.util.Map.Entry;
 
+import com.sun.jdi.ArrayReference;
 import com.sun.jdi.ArrayType;
 import com.sun.jdi.BooleanType;
 import com.sun.jdi.ClassNotLoadedException;
@@ -30,6 +31,8 @@ import com.sun.jdi.StringReference;
 import com.sun.jdi.Type;
 import com.sun.jdi.Value;
 import com.sun.jdi.event.ModificationWatchpointEvent;
+
+import dast.ui.ObjectInfo.ArrayPair;
 
 @SuppressWarnings("restriction")
 public class ObjectInfo {
@@ -72,6 +75,7 @@ public class ObjectInfo {
 	private int[] aroundArrayWriteTime = {0, 0, 0, 0, 0, 0, 0, 0};
 	private Map<String, Object> anotherField = new HashMap<String,Object>();
 	private List<Field> linkedField = new ArrayList<Field>();
+	private List<ArrayPair> linkedArray = new ArrayList<ArrayPair>();
 	protected int around_size[]  = { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	private int width = 0;
 	private int length = 0;
@@ -97,14 +101,14 @@ public class ObjectInfo {
 
 
 	
-	ObjectInfo(ObjectReference tar,Type type, ClassDefinition def, ObjectManager om){
+	ObjectInfo(ObjectReference tar, ClassDefinition def, ObjectManager om){
 		object = tar;
 		this.om = om;
-		this.type = (ReferenceType)type;
+		this.type = (ReferenceType)tar.referenceType();
 		this.def = def;
 		if(def != null){
-		def.addObject();
-		index = def.getNumObject();
+			def.addObject();
+			index = def.getNumObject();
 		}
 		this.copy = false;
 		setFieldName();
@@ -135,6 +139,9 @@ public class ObjectInfo {
 	}
 	
 	private void setFieldName(){
+		if(def == null){
+			return;
+		}
 		Map<String, Integer> fieldDirection = def.getFields();
 		List<Field> fields = type.fields();
 		for(Iterator<Field> it = fields.iterator(); it.hasNext();){
@@ -766,14 +773,21 @@ public class ObjectInfo {
 	
 	public void linked(ObjectInfo from, Field field){
 		if(from != this){
-			this.lastLinked = from;
+			//this.lastLinked = from;
 			linkedField.add(field);
 		};
 	}
 	
+	public void linkedFromArray(ArrayInfo from, int index){
+		if(from != this){
+			//this.lastLinked = from;
+			linkedArray.add(new ArrayPair(from, index));
+		}
+	}
+	
 	
 	public boolean isLinked(){
-		if(linkedField.isEmpty()){
+		if(linkedField.isEmpty() && linkedArray.isEmpty()){
 			return false;
 		}else{
 			return true;
@@ -790,6 +804,32 @@ public class ObjectInfo {
 			}
 		}
 		return false;
+	}
+	public void removeLink(Field field){
+		linkedField.remove(field);
+	}
+	
+	public void removeLinkArray(ArrayInfo from, int index){
+		for(Iterator<ArrayPair> it = linkedArray.iterator(); it.hasNext();){
+			ArrayPair pair = it.next();
+			if(pair.array == from && pair.index == index){
+				linkedArray.remove(pair);
+				break;
+			}
+		}
+	}
+	class ArrayPair{
+		ArrayInfo array;
+		int index;
+		
+		ArrayPair(ArrayInfo array, int index){
+			this.array = array;
+			this.index = index;
+		}
+		
+		public boolean equals(ArrayPair arr){
+			return this.array == arr.array && this.index == arr.index;
+		}
 	}
 	
 	/*public void resetAround(){
@@ -880,8 +920,6 @@ public class ObjectInfo {
 		return aroundFieldWriteTime;
 	}
 	
-	public void removeLink(Field field){
-		linkedField.remove(field);
-	}
+	
 
 }

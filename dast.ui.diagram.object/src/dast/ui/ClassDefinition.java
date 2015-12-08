@@ -93,7 +93,7 @@ public class ClassDefinition {
 		return numObject;
 	}
 
-	public int getDirectionbyName(String name){
+	public int getDirectionByName(String name){
 		if(fieldDirection.get(name) != null){
 			return fieldDirection.get(name);
 		}else if(fieldDirection.get(name + "[]") != null){

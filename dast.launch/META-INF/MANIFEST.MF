@@ -4,9 +4,10 @@ Bundle-Name: DAST Launch Extension
 Bundle-SymbolicName: dast.launch;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: dast.launch.DastLaunchPlugin
-Require-Bundle: org.eclipse.debug.core,
- dast.model,
- dast.debug.jdi
+Require-Bundle: dast.model,
+ dast.debug.jdi,
+ org.eclipse.debug.core;bundle-version="3.10.0",
+ org.eclipse.jdt.launching
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Export-Package: dast.launch
@@ -16,5 +17,4 @@ Import-Package: com.sun.jdi,
  org.eclipse.jdi,
  org.eclipse.jdt.core,
  org.eclipse.jdt.internal.launching,
- org.eclipse.jdt.launching,
  org.osgi.framework;version="1.8.0"

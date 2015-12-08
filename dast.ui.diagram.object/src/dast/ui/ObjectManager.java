@@ -15,6 +15,7 @@ import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Type;
 import com.sun.jdi.Value;
+import com.sun.jdi.event.AccessWatchpointEvent;
 import com.sun.jdi.event.ModificationWatchpointEvent;
 
 @SuppressWarnings("restriction")
@@ -47,7 +48,14 @@ public class ObjectManager {
 			oin = createObjectInfo(object);
 		}
 		
-		if(e.valueToBe() instanceof ObjectReference){
+		if(e.valueToBe() instanceof ArrayReference){
+			ArrayReference value = (ArrayReference)e.valueToBe();
+			ArrayInfo valueArr = searchArrayInfo(value);
+			if(valueArr == null){
+				valueArr = createArrayInfo((ArrayReference)value, object, e.field());
+			}
+			
+		}else if(e.valueToBe() instanceof ObjectReference){
 			ObjectReference value = (ObjectReference)e.valueToBe();
 			if(isDefinedClass(value.referenceType()) != null){
 				ObjectInfo valueOin = searchObjectInfo(value);
@@ -69,20 +77,58 @@ public class ObjectManager {
 		
 	}
 	
+	public void arrayWrite(AccessWatchpointEvent e){
+		incTime();
+		ObjectReference object = e.object();
+		ObjectInfo oin = searchObjectInfo(object);
+		if(oin == null){
+			return;
+		}
+		ArrayReference targetArray = (ArrayReference)object.getValue(e.field());
+		ArrayInfo targetArrayInfo = searchArrayInfo(targetArray);
+		if(targetArrayInfo != null){
+			targetArrayInfo.setArrayValue(time);
+		}
+		
+	}
+	
 	public ObjectInfo createObjectInfo(ObjectReference tar){
 			ClassDefinition cld = isDefinedClass(tar.referenceType());				
 			getTargetObject().add(tar);
-			ObjectInfo object = new ObjectInfo(tar, tar.referenceType(), cld, this);
+			ObjectInfo object = new ObjectInfo(tar, cld, this);
 			objectInfo.add(object);
 			return object;
 	}
 	
+	private ArrayInfo createArrayInfo(ArrayReference tar, ObjectReference from, Field field){
+		ClassDefinition cld = isDefinedClass((ClassType)from.referenceType());
+		int directed = cld.getDirectionByName(field.name());
+		ArrayInfo array = new ArrayInfo(tar, null, this, directed, field.name());
+		objectInfo.add(array);
+		arrayInfo.add(array);
+		return array;
+	}
+
+
 	public ObjectInfo searchObjectInfo(ObjectReference tar){
 		for(Iterator<ObjectInfo> it = objectInfo.iterator(); it.hasNext();){
 			ObjectInfo oin = it.next();
 			
 			if(tar != null && oin.sameObject(tar)){
 				return oin;
+			}
+		}
+		return null;
+	}
+	
+	public ArrayInfo searchArrayInfo(ArrayReference tar){
+		if(tar == null){
+			return null;
+		}
+		for(Iterator<ArrayInfo> it = arrayInfo.iterator(); it.hasNext();){
+			ArrayInfo ain = it.next();
+			if(ain.sameObject(tar)){
+				return ain;
 			}
 		}
 		return null;
@@ -263,16 +309,7 @@ public class ObjectManager {
 	
 
 	
-	public void addArray(ObjectReference from,Field field, ObjectReference value){
-		if(searchObjectInfo(value) == null){
-			ClassDefinition cld = isDefinedClass((ClassType) from.referenceType());
-			int directed = cld.getDirectionbyName(field.name());
-			ArrayInfo array = new ArrayInfo(value, value.type(), null, this, directed, field.name());
-			objectInfo.add(array);
-			arrayInfo.add(array);
-		}
-	}
-
+	
 
 	
 	
