@@ -2,18 +2,6 @@
 <?eclipse version="3.4"?>
 <fragment>
    <extension
-         point="org.eclipse.debug.ui.launchConfigurationTabs">
-      <tab
-            class="dast.launch.ui.java.JavaTab"
-            group="org.eclipse.jdt.debug.ui.launchConfigurationTabGroup.localJavaApplication"
-            id="dast.launch.ui.dastTabJavaApplication"
-            name="Dast Tab for Java Application">
-         <placement
-               after="org.eclipse.jdt.debug.ui.javaArgumentsTab">
-         </placement>
-      </tab>
-   </extension>
-   <extension
          point="org.eclipse.debug.core.launchDelegates">
       <launchDelegate
             delegate="dast.internal.launch.java.JavaApplicationLaunchDelegate"

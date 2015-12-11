@@ -58,33 +58,27 @@ final class EventHandlerFactory
   private  ObjectManager objectManager;
   private  ReadDast layoutDefinition;
 
+  public boolean ready = false;
   EventHandlerFactory(final DastDebugTarget owner)
   {
     this.owner = owner;
     createDastEnvironment();
     this.fieldReadHandler = new AccessWatchpointHandler();
     this.fieldWriteHandler = new ModificationWatchpointHandler();
+    
     this.classPrepareHandler = new ClassPrepareHandler();
+
     this.methodEntryHandler = new MethodEntryHandler();
     this.methodExitHandler = new MethodExitHandler();
     this.exceptionHandler = new ExceptionHandler();
     this.classes = new HashSet<ReferenceType>();
 
-   
-    /*try {
-		this.layoutDefinition = new ReadDast(new FileInputStream("D:\\User\\Desktop\\DASTFile"));
-		this.objectManager = new ObjectManager(layoutDefinition.getClassDefinition());
-	} catch (FileNotFoundException e) {
-		// TODO Auto-generated catch block
-		this.layoutDefinition = null;
-		this.objectManager = null;
-		e.printStackTrace();
-	}*/
 
   }
 
   private void createDastEnvironment(){
 	  try {
+		  
 		  IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		  String projectName = owner.getProjectName();
 
@@ -93,8 +87,8 @@ final class EventHandlerFactory
 		  String dastPath = path.toString() + "\\"+ projectName + "\\DASTFile" ;
 		  //System.out.println(dastPath);
 
-
 		  this.layoutDefinition = new ReadDast(new FileInputStream(dastPath));
+		 // this.layoutDefinition = new ReadDast(new FileInputStream("E:\\eclipse-rcp-neon3\\eclipse\\runtime-EclipseApplication\\BST\\DASTFile"));
 		  this.objectManager = new ObjectManager(layoutDefinition.getClassDefinition());
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -125,7 +119,8 @@ final class EventHandlerFactory
       if (owner.isActive())
       {
     	AccessWatchpointEvent e = (AccessWatchpointEvent)event;
-    	if(e.object().getValue(e.field()).type() instanceof ArrayType){
+    	if(e.object() != null && e.object().getValue(e.field()) != null 
+    			&& e.object().getValue(e.field()).type() instanceof ArrayType){
 			System.out.println("array");
 			objectManager.arrayWrite(e);
 			objectManager.draw();
@@ -136,12 +131,13 @@ final class EventHandlerFactory
     }
   }
 
-  private class ClassPrepareHandler implements IJDIEventListener
+  class ClassPrepareHandler implements IJDIEventListener
   {
     final List<EventRequest> fieldRequests = new ArrayList<EventRequest>();
 
     protected ClassPrepareHandler()
     {
+    	
       createRequest();
     }
 
@@ -153,11 +149,10 @@ final class EventHandlerFactory
     }
 
     @Override
-    public boolean handleEvent(final Event event, final JDIDebugTarget target,
+    public synchronized boolean handleEvent(final Event event, final JDIDebugTarget target,
         final boolean suspendVote, final EventSet eventSet)
     {
      //classes.add(((ClassPrepareEvent) event).referenceType());
-
       if(objectManager.isDefinedClass(((ClassPrepareEvent)event).referenceType()) != null){
     	  createFieldRequests(target, ((ClassPrepareEvent) event).referenceType());
     	  return true;
@@ -192,6 +187,7 @@ final class EventHandlerFactory
               writeRequest.enable();
               fieldRequests.add(writeRequest);
               target.addJDIEventListener(fieldWriteHandler, writeRequest);
+              ready = true;
             }
           }
         }
@@ -214,6 +210,7 @@ final class EventHandlerFactory
           request.setSuspendPolicy(EventRequest.SUSPEND_NONE);
           request.enable();
           owner.addJDIEventListener(this, request);
+          
         }
         catch (final RuntimeException e)
         {
@@ -327,6 +324,7 @@ final class EventHandlerFactory
 
     protected MethodEntryHandler()
     {
+    	//createRequest();
     }
 
     @Override
@@ -342,7 +340,11 @@ final class EventHandlerFactory
     {
       if (owner.isActive())
       {
-
+    	  /*MethodEntryEvent e = (MethodEntryEvent)event;
+    	  System.out.println(e.method().name());
+    	  if(e.method().name() == "main"){
+    		  
+    	  }*/
       }
       return true;
     }

@@ -6,9 +6,6 @@ Bundle-Version: 1.0.0.qualifier
 Fragment-Host: org.eclipse.jdt.launching
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.eclipse.debug.ui,
- dast.launch,
- org.eclipse.ui;bundle-version="3.106.1"
-Import-Package: org.eclipse.jdt.debug.ui.launchConfigurations,
- org.eclipse.jdt.launching
-Export-Package: dast.internal.launch.java,
- dast.launch.ui.java
+ dast.launch
+Import-Package: org.eclipse.jdt.launching
+Export-Package: dast.internal.launch.java

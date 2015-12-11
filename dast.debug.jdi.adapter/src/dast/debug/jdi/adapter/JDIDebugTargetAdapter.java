@@ -1,10 +1,12 @@
-package org.eclipse.jdt.internal.debug.core.model;
+package dast.debug.jdi.adapter;
 
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
+import org.eclipse.jdt.internal.debug.core.model.JDIDebugTarget;
 
 import com.sun.jdi.VirtualMachine;
 
+@SuppressWarnings("restriction")
 public class JDIDebugTargetAdapter extends JDIDebugTarget
 {
   public JDIDebugTargetAdapter(final ILaunch launch, final VirtualMachine jvm, final String name,

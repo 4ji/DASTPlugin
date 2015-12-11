@@ -1,4 +1,7 @@
-package org.eclipse.jdt.internal.debug.core.model;
+package dast.debug.jdi.adapter;
+
+import org.eclipse.jdt.internal.debug.core.model.JDIDebugTarget;
+import org.eclipse.jdt.internal.debug.core.model.JDIThread;
 
 import com.sun.jdi.ObjectCollectedException;
 import com.sun.jdi.ThreadReference;

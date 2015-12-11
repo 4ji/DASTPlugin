@@ -1,5 +1,6 @@
 package dast.internal.debug.jdi;
 
+import java.beans.EventHandler;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -8,7 +9,10 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.jdt.debug.core.IJavaDebugTarget;
+import org.eclipse.jdt.internal.debug.core.EventDispatcher;
+import org.eclipse.jdt.internal.debug.core.IJDIEventListener;
 import org.eclipse.jdt.internal.debug.core.model.JDIDebugTarget;
+//import org.eclipse.jdt.internal.debug.core.model.JDIDebugTargetAdapter;
 import org.eclipse.jdt.internal.debug.core.model.JDIThread;
 
 import com.sun.jdi.ObjectCollectedException;
@@ -51,7 +55,10 @@ class DastDebugTarget extends JDIDebugTarget implements IJavaDebugTarget
 		    this.isStarted = true;
 		    this.isStopped = false;
 		    this.projectName = projectName;
+		    //new ThreadDeathHandler();
 		    this.eventHandlerFactory = new EventHandlerFactory(this);
+		    //this.eventHandlerFactory = null;
+		    System.out.println("");
 		  }
 
 	  public boolean isActive()
@@ -60,11 +67,92 @@ class DastDebugTarget extends JDIDebugTarget implements IJavaDebugTarget
 	  }
 
 
-	  public synchronized IDastProject getProject(){
+	  public IDastProject getProject(){
 		  return this.project;
 	  }
 	  
 	  public String getProjectName(){
 		  return this.projectName;
+	  }
+	  
+	  /*
+	  private final class ThreadDeathHandler extends JDIDebugTargetAdapter.ThreadDeathHandlerAdapter
+	  {
+	    protected ThreadDeathHandler()
+	    {
+	      super();
+	    }
+
+	    
+	    @Override
+	    public boolean handleEvent(final Event event, final JDIDebugTarget target,
+	        final boolean suspendVote, final EventSet eventSet)
+	    {
+
+	      return super.handleEvent(event, target, suspendVote, eventSet);
+	    }
+
+	    @Override
+	    protected void createRequest()
+	    {
+	      final EventRequestManager manager = getEventRequestManager();
+	      if (manager != null)
+	      {
+	        try
+	        {
+	          final EventRequest request = manager.createThreadDeathRequest();
+	          request.setSuspendPolicy(generateLockEvents() ? EventRequest.SUSPEND_ALL
+	              : EventRequest.SUSPEND_EVENT_THREAD);
+	          request.enable();
+	          addJDIEventListener(this, request);
+	        }
+	        catch (final RuntimeException e)
+	        {
+	          logError(e);
+	        }
+	      }
+	    }
+	  }*/
+	  
+	  private boolean generateLockEvents(){
+		  return false;
+	  }
+	
+	  @Override
+	  public void addJDIEventListener(IJDIEventListener listener,
+				EventRequest request) {
+		  if(listener instanceof EventHandlerFactory.ClassPrepareHandler){
+			  EventDispatcher dispatcher = ((JDIDebugTarget) getDebugTarget())
+						.getEventDispatcher();
+				if (dispatcher != null) {
+					System.out.println("addEventListner start"); //$NON-NLS-1$
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					dispatcher.addJDIEventListener(listener, request);
+					System.out.println("addEventListner end"); //$NON-NLS-1$
+				}
+		  }else{
+			  EventDispatcher dispatcher = ((JDIDebugTarget) getDebugTarget())
+						.getEventDispatcher();
+				if (dispatcher != null) {
+					dispatcher.addJDIEventListener(listener, request);
+				}
+		  }
+			
+		}
+		
+	  @Override
+	  public void handleVMStart(final VMStartEvent event)
+	  {
+		  while(eventHandlerFactory == null || eventHandlerFactory.ready == false){
+			  
+		  }
+	    System.out.println("VMStart");
+	    super.handleVMStart(event);
+	    
 	  }
 }

@@ -7,9 +7,8 @@ Bundle-Activator: dast.debug.DastDebugPlugin
 Require-Bundle: org.eclipse.core.runtime,
  dast.model,
  org.eclipse.jdt.debug,
- org.eclipse.core.resources,
- dast.ui.diagram.object;bundle-version="1.0.0",
- org.eclipse.debug.core;bundle-version="3.10.0"
+ dast.ui.diagram.object,
+ org.eclipse.debug.core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Export-Package: dast.debug;
