@@ -29,6 +29,7 @@ import com.sun.jdi.event.ExceptionEvent;
 import com.sun.jdi.event.MethodEntryEvent;
 import com.sun.jdi.event.MethodExitEvent;
 import com.sun.jdi.event.ModificationWatchpointEvent;
+import com.sun.jdi.event.VMDisconnectEvent;
 import com.sun.jdi.request.AccessWatchpointRequest;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequest;
@@ -119,7 +120,8 @@ final class EventHandlerFactory
       if (owner.isActive())
       {
     	AccessWatchpointEvent e = (AccessWatchpointEvent)event;
-    	if(e.object() != null && e.object().getValue(e.field()) != null 
+    	if(e.object() != null 
+    			&& e.object().getValue(e.field()) != null 
     			&& e.object().getValue(e.field()).type() instanceof ArrayType){
 			System.out.println("array");
 			objectManager.arrayWrite(e);
@@ -153,6 +155,7 @@ final class EventHandlerFactory
         final boolean suspendVote, final EventSet eventSet)
     {
      //classes.add(((ClassPrepareEvent) event).referenceType());
+    	//System.out.println(((ClassPrepareEvent) event).referenceType().toString());
       if(objectManager.isDefinedClass(((ClassPrepareEvent)event).referenceType()) != null){
     	  createFieldRequests(target, ((ClassPrepareEvent) event).referenceType());
     	  return true;
@@ -176,14 +179,14 @@ final class EventHandlerFactory
             {
               // monitor field reads
               final AccessWatchpointRequest readRequest = manager.createAccessWatchpointRequest(f);
-              readRequest.setSuspendPolicy(EventRequest.SUSPEND_NONE);
+              readRequest.setSuspendPolicy(EventRequest.SUSPEND_ALL);
               readRequest.enable();
               fieldRequests.add(readRequest);
               target.addJDIEventListener(fieldReadHandler, readRequest);
               // monitor field writes
               final ModificationWatchpointRequest writeRequest = manager
                   .createModificationWatchpointRequest(f);
-              writeRequest.setSuspendPolicy(EventRequest.SUSPEND_NONE);
+              writeRequest.setSuspendPolicy(EventRequest.SUSPEND_ALL);
               writeRequest.enable();
               fieldRequests.add(writeRequest);
               target.addJDIEventListener(fieldWriteHandler, writeRequest);
@@ -207,7 +210,7 @@ final class EventHandlerFactory
         {
           final ClassPrepareRequest request = manager.createClassPrepareRequest();
           //owner.jdiManager().modelFilter().filter(request);
-          request.setSuspendPolicy(EventRequest.SUSPEND_NONE);
+          request.setSuspendPolicy(EventRequest.SUSPEND_ALL);
           request.enable();
           owner.addJDIEventListener(this, request);
           
@@ -362,7 +365,7 @@ final class EventHandlerFactory
           }
           request = manager.createMethodEntryRequest();
          // owner.jdiManager().modelFilter().filter(request);
-          request.setSuspendPolicy(EventRequest.SUSPEND_NONE);
+          request.setSuspendPolicy(EventRequest.SUSPEND_ALL);
           request.enable();
           owner.addJDIEventListener(this, request);
         }
@@ -431,7 +434,7 @@ final class EventHandlerFactory
           }
           request = manager.createMethodExitRequest();
           //owner.jdiManager().modelFilter().filter(request);
-          request.setSuspendPolicy(EventRequest.SUSPEND_NONE);
+          request.setSuspendPolicy(EventRequest.SUSPEND_ALL);
           request.enable();
           owner.addJDIEventListener(this, request);
         }
@@ -481,7 +484,9 @@ final class EventHandlerFactory
       if (owner.isActive())
       {
     	  ModificationWatchpointEvent e = (ModificationWatchpointEvent)event;
-          if(objectManager != null && e != null && objectManager.classPrepare(e.object().referenceType())){
+          if(objectManager != null && 
+        		  e != null &&
+        		  objectManager.classPrepare(e.object().referenceType())){
           	objectManager.fieldWrite(e);
           	objectManager.draw();
           }
@@ -490,6 +495,12 @@ final class EventHandlerFactory
       return true;
     }
    
+  }
+
+  public boolean handleVMDisconnect(VMDisconnectEvent event) {
+	  objectManager.VMDisconnect(event);
+	  return true;
+	  
   }
 }
 

@@ -148,11 +148,46 @@ class DastDebugTarget extends JDIDebugTarget implements IJavaDebugTarget
 	  @Override
 	  public void handleVMStart(final VMStartEvent event)
 	  {
-		  while(eventHandlerFactory == null || eventHandlerFactory.ready == false){
-			  
-		  }
+		 /* while(eventHandlerFactory == null || eventHandlerFactory.ready == false){
+			  System.out.println("wait");
+		  }*/
+		  
+		 try {
+			Thread.sleep(200);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	    System.out.println("VMStart");
 	    super.handleVMStart(event);
 	    
+	    
+	    
 	  }
+	  
+	@Override
+	  public void handleVMDisconnect(final VMDisconnectEvent event)
+	  {
+	    if (isActive())
+	    {
+	    	//eventHandlerFactory.handleVMDisconnect(event);
+	    }
+	    super.handleVMDisconnect(event);
+	  }
+
+	/*@Override
+	  protected JDIThread newThread(final ThreadReference reference)
+	  {
+	    try
+	    {
+	      
+	      return new DastThread(this, reference);
+	    }
+	    catch (final ObjectCollectedException exception)
+	    {
+	      // ObjectCollectionException can be thrown if the thread has already
+	      // completed (exited) in the VM.
+	    }
+	    return null;
+	  }*/
 }

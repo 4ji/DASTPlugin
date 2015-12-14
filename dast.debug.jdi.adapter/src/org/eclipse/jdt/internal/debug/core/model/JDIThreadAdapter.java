@@ -1,4 +1,4 @@
-package dast.debug.jdi.adapter;
+package org.eclipse.jdt.internal.debug.core.model;
 
 import org.eclipse.jdt.internal.debug.core.model.JDIDebugTarget;
 import org.eclipse.jdt.internal.debug.core.model.JDIThread;

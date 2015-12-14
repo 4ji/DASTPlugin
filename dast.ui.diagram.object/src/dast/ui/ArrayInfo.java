@@ -5,17 +5,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.jdi.ArrayReference;
 import com.sun.jdi.ArrayType;
-import com.sun.jdi.ClassNotLoadedException;
-import com.sun.jdi.ClassType;
-import com.sun.jdi.Field;
+import com.sun.jdi.ArrayReference;
 import com.sun.jdi.ObjectReference;
-import com.sun.jdi.PrimitiveType;
 import com.sun.jdi.PrimitiveValue;
-import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Type;
 import com.sun.jdi.Value;
+
+
 
 @SuppressWarnings("restriction")
 public class ArrayInfo extends ObjectInfo {

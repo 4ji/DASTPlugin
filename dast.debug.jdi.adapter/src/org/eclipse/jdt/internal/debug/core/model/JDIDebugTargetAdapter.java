@@ -1,4 +1,4 @@
-package dast.debug.jdi.adapter;
+package org.eclipse.jdt.internal.debug.core.model;
 
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;

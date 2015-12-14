@@ -5,4 +5,6 @@ Bundle-SymbolicName: dast.ui.diagram.object
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: dast.ui
-Require-Bundle: org.eclipse.jdt.debug
+Import-Package: com.sun.jdi
+Require-Bundle: org.eclipse.jdt.debug,
+ org.eclipse.jdt.core

@@ -4,19 +4,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ArrayReference;
-import com.sun.jdi.ArrayType;
-import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.ClassType;
 import com.sun.jdi.Field;
-import com.sun.jdi.IntegerType;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
-import com.sun.jdi.Type;
 import com.sun.jdi.Value;
+import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.event.AccessWatchpointEvent;
 import com.sun.jdi.event.ModificationWatchpointEvent;
+import com.sun.jdi.event.VMDisconnectEvent;
 
 @SuppressWarnings("restriction")
 public class ObjectManager {	
@@ -65,6 +62,7 @@ public class ObjectManager {
 			}
 		}
 				
+		
 		try {
 			oin.setLink(time, e.field());
 		} catch (IllegalArgumentException ex1) {
@@ -75,6 +73,7 @@ public class ObjectManager {
 			ex1.printStackTrace();
 		}
 		
+		//refreshAllObjectField();
 	}
 	
 	public void arrayWrite(AccessWatchpointEvent e){
@@ -143,6 +142,13 @@ public class ObjectManager {
 		}
 		return null;
 	}
+	
+	/*private void refreshAllObjectField(){
+		for(Iterator<ObjectInfo> it = objectInfo.iterator(); it.hasNext();){
+			ObjectInfo tar = it.next();
+			tar.setLi
+		}
+	}*/
 	
 	public void draw(){
 		
@@ -394,4 +400,19 @@ public class ObjectManager {
 	public void setVisualize(Visualize v){
 		visualize = v;
 	}
+
+
+
+	public void VMDisconnect(VMDisconnectEvent event) {
+		VirtualMachine vm = event.virtualMachine();
+		List<ReferenceType> allClasses = vm.allClasses();
+		for(Iterator<ReferenceType> it = allClasses.iterator(); it.hasNext();){
+			ReferenceType ref = it.next();
+			if(isDefinedClass(ref) != null){
+				System.out.println(ref.toString());
+			}
+		}
+	}
+	
+
 }
