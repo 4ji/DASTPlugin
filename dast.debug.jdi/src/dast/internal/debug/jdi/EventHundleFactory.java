@@ -179,14 +179,14 @@ final class EventHandlerFactory
             {
               // monitor field reads
               final AccessWatchpointRequest readRequest = manager.createAccessWatchpointRequest(f);
-              readRequest.setSuspendPolicy(EventRequest.SUSPEND_ALL);
+              readRequest.setSuspendPolicy(EventRequest.SUSPEND_NONE);
               readRequest.enable();
               fieldRequests.add(readRequest);
               target.addJDIEventListener(fieldReadHandler, readRequest);
               // monitor field writes
               final ModificationWatchpointRequest writeRequest = manager
                   .createModificationWatchpointRequest(f);
-              writeRequest.setSuspendPolicy(EventRequest.SUSPEND_ALL);
+              writeRequest.setSuspendPolicy(EventRequest.SUSPEND_NONE);
               writeRequest.enable();
               fieldRequests.add(writeRequest);
               target.addJDIEventListener(fieldWriteHandler, writeRequest);
@@ -210,7 +210,7 @@ final class EventHandlerFactory
         {
           final ClassPrepareRequest request = manager.createClassPrepareRequest();
           //owner.jdiManager().modelFilter().filter(request);
-          request.setSuspendPolicy(EventRequest.SUSPEND_ALL);
+          request.setSuspendPolicy(EventRequest.SUSPEND_NONE);
           request.enable();
           owner.addJDIEventListener(this, request);
           
@@ -291,7 +291,7 @@ final class EventHandlerFactory
             removeRequest();
           }
           request = manager.createExceptionRequest(null, true, true);
-          request.setSuspendPolicy(EventRequest.SUSPEND_ALL);
+          request.setSuspendPolicy(EventRequest.SUSPEND_NONE);
           request.enable();
           owner.addJDIEventListener(this, request);
         }
@@ -365,7 +365,7 @@ final class EventHandlerFactory
           }
           request = manager.createMethodEntryRequest();
          // owner.jdiManager().modelFilter().filter(request);
-          request.setSuspendPolicy(EventRequest.SUSPEND_ALL);
+          request.setSuspendPolicy(EventRequest.SUSPEND_NONE);
           request.enable();
           owner.addJDIEventListener(this, request);
         }
@@ -434,7 +434,7 @@ final class EventHandlerFactory
           }
           request = manager.createMethodExitRequest();
           //owner.jdiManager().modelFilter().filter(request);
-          request.setSuspendPolicy(EventRequest.SUSPEND_ALL);
+          request.setSuspendPolicy(EventRequest.SUSPEND_NONE);
           request.enable();
           owner.addJDIEventListener(this, request);
         }

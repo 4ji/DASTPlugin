@@ -1,41 +1,41 @@
 package dast.internal.debug.jdi;
 
-import java.beans.EventHandler;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+//import java.beans.EventHandler;
+//import java.util.List;
+//import java.util.concurrent.atomic.AtomicInteger;
 
-import org.eclipse.debug.core.DebugException;
+//import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
-import org.eclipse.debug.core.model.IThread;
+//import org.eclipse.debug.core.model.IThread;
 import org.eclipse.jdt.debug.core.IJavaDebugTarget;
 import org.eclipse.jdt.internal.debug.core.EventDispatcher;
 import org.eclipse.jdt.internal.debug.core.IJDIEventListener;
 import org.eclipse.jdt.internal.debug.core.model.JDIDebugTarget;
 //import org.eclipse.jdt.internal.debug.core.model.JDIDebugTargetAdapter;
-import org.eclipse.jdt.internal.debug.core.model.JDIThread;
+//import org.eclipse.jdt.internal.debug.core.model.JDIThread;
 
-import com.sun.jdi.ObjectCollectedException;
-import com.sun.jdi.ThreadReference;
+//import com.sun.jdi.ObjectCollectedException;
+//import com.sun.jdi.ThreadReference;
 import com.sun.jdi.VirtualMachine;
-import com.sun.jdi.event.Event;
-import com.sun.jdi.event.EventSet;
-import com.sun.jdi.event.ThreadDeathEvent;
-import com.sun.jdi.event.ThreadStartEvent;
-import com.sun.jdi.event.VMDeathEvent;
+//import com.sun.jdi.event.Event;
+//import com.sun.jdi.event.EventSet;
+//import com.sun.jdi.event.ThreadDeathEvent;
+//import com.sun.jdi.event.ThreadStartEvent;
+//import com.sun.jdi.event.VMDeathEvent;
 import com.sun.jdi.event.VMDisconnectEvent;
 import com.sun.jdi.event.VMStartEvent;
 import com.sun.jdi.request.EventRequest;
-import com.sun.jdi.request.EventRequestManager;
+//import com.sun.jdi.request.EventRequestManager;
 
-import dast.debug.DastDebugPlugin;
+//import dast.debug.DastDebugPlugin;
 import dast.model.IDastProject;
 
 /*implements �ｿｽ�ｿｽ�ｿｽ�ｿｽIDastDebugTarget�ｿｽ�ｿｽ�ｿｽ�ｿｽ�ｿｽO
  * �ｿｽ�ｿｽ�ｿｽ�ｿｽﾉ費ｿｽ�ｿｽ�ｿｽ@Override�ｿｽﾌ一部�ｿｽ�ｿｽ�ｿｽ\�ｿｽb�ｿｽh�ｿｽ�ｿｽ�ｿｽ尞�
  */
 
-@SuppressWarnings({ "restriction", "unused" })
+@SuppressWarnings({ "restriction" })
 class DastDebugTarget extends JDIDebugTarget implements IJavaDebugTarget
 {
 
@@ -114,9 +114,9 @@ class DastDebugTarget extends JDIDebugTarget implements IJavaDebugTarget
 	    }
 	  }*/
 	  
-	  private boolean generateLockEvents(){
+	  /*private boolean generateLockEvents(){
 		  return false;
-	  }
+	  }*/
 	
 	  @Override
 	  public void addJDIEventListener(IJDIEventListener listener,
