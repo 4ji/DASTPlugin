@@ -2,9 +2,9 @@ package org.eclipse.jdt.internal.debug.core.model;
 
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
-import org.eclipse.jdt.internal.debug.core.model.JDIDebugTarget;
 
 import com.sun.jdi.VirtualMachine;
+
 
 @SuppressWarnings("restriction")
 public class JDIDebugTargetAdapter extends JDIDebugTarget

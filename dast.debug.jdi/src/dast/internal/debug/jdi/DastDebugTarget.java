@@ -12,23 +12,23 @@ import org.eclipse.jdt.debug.core.IJavaDebugTarget;
 import org.eclipse.jdt.internal.debug.core.EventDispatcher;
 import org.eclipse.jdt.internal.debug.core.IJDIEventListener;
 import org.eclipse.jdt.internal.debug.core.model.JDIDebugTarget;
+import org.eclipse.jdt.internal.debug.core.model.JDIDebugTargetAdapter;
 //import org.eclipse.jdt.internal.debug.core.model.JDIDebugTargetAdapter;
 //import org.eclipse.jdt.internal.debug.core.model.JDIThread;
+import org.eclipse.jdt.internal.debug.core.model.JDIThread;
 
-//import com.sun.jdi.ObjectCollectedException;
-//import com.sun.jdi.ThreadReference;
+import com.sun.jdi.ObjectCollectedException;
+import com.sun.jdi.ThreadReference;
+
 import com.sun.jdi.VirtualMachine;
-//import com.sun.jdi.event.Event;
-//import com.sun.jdi.event.EventSet;
-//import com.sun.jdi.event.ThreadDeathEvent;
-//import com.sun.jdi.event.ThreadStartEvent;
-//import com.sun.jdi.event.VMDeathEvent;
+import com.sun.jdi.event.Event;
+import com.sun.jdi.event.EventSet;
+
 import com.sun.jdi.event.VMDisconnectEvent;
 import com.sun.jdi.event.VMStartEvent;
 import com.sun.jdi.request.EventRequest;
-//import com.sun.jdi.request.EventRequestManager;
+import com.sun.jdi.request.EventRequestManager;
 
-//import dast.debug.DastDebugPlugin;
 import dast.model.IDastProject;
 
 /*implements �ｿｽ�ｿｽ�ｿｽ�ｿｽIDastDebugTarget�ｿｽ�ｿｽ�ｿｽ�ｿｽ�ｿｽO
@@ -36,7 +36,7 @@ import dast.model.IDastProject;
  */
 
 @SuppressWarnings({ "restriction" })
-class DastDebugTarget extends JDIDebugTarget implements IJavaDebugTarget
+class DastDebugTarget extends JDIDebugTargetAdapter implements IJavaDebugTarget
 {
 
 	private IDastProject project;
@@ -55,7 +55,7 @@ class DastDebugTarget extends JDIDebugTarget implements IJavaDebugTarget
 		    this.isStarted = true;
 		    this.isStopped = false;
 		    this.projectName = projectName;
-		    //new ThreadDeathHandler();
+		    new ThreadDeathHandler();
 		    this.eventHandlerFactory = new EventHandlerFactory(this);
 		    //this.eventHandlerFactory = null;
 		    System.out.println("");
@@ -75,7 +75,7 @@ class DastDebugTarget extends JDIDebugTarget implements IJavaDebugTarget
 		  return this.projectName;
 	  }
 	  
-	  /*
+	  
 	  private final class ThreadDeathHandler extends JDIDebugTargetAdapter.ThreadDeathHandlerAdapter
 	  {
 	    protected ThreadDeathHandler()
@@ -101,8 +101,9 @@ class DastDebugTarget extends JDIDebugTarget implements IJavaDebugTarget
 	        try
 	        {
 	          final EventRequest request = manager.createThreadDeathRequest();
-	          request.setSuspendPolicy(generateLockEvents() ? EventRequest.SUSPEND_ALL
-	              : EventRequest.SUSPEND_EVENT_THREAD);
+	          /*request.setSuspendPolicy(generateLockEvents() ? EventRequest.SUSPEND_ALL
+	              : EventRequest.SUSPEND_EVENT_THREAD);*/
+	          request.setSuspendPolicy(EventRequest.SUSPEND_ALL);
 	          request.enable();
 	          addJDIEventListener(this, request);
 	        }
@@ -112,7 +113,7 @@ class DastDebugTarget extends JDIDebugTarget implements IJavaDebugTarget
 	        }
 	      }
 	    }
-	  }*/
+	  }
 	  
 	  /*private boolean generateLockEvents(){
 		  return false;
@@ -175,7 +176,7 @@ class DastDebugTarget extends JDIDebugTarget implements IJavaDebugTarget
 	    super.handleVMDisconnect(event);
 	  }
 
-	/*@Override
+	@Override
 	  protected JDIThread newThread(final ThreadReference reference)
 	  {
 	    try
@@ -189,5 +190,7 @@ class DastDebugTarget extends JDIDebugTarget implements IJavaDebugTarget
 	      // completed (exited) in the VM.
 	    }
 	    return null;
-	  }*/
+	  }
+	
+	
 }

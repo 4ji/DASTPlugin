@@ -302,10 +302,15 @@ public class ObjectManager {
 		for(Iterator<ClassDefinition> it = targetClass.iterator(); it.hasNext();){
 			ClassDefinition cld = ((ClassDefinition) it.next());
 			//System.out.println(tar.name() + " "+cld.getName());
-			if(tar.name().matches(".*\\.*" + cld.getName())){
+			
+			/*if(tar.name().matches("\\" + cld.getName() + "$")){
 				//System.out.println(cld.getName() + " "+ tar.name() );
 				return cld;
 			}else if(tar.name().equals(cld.getName())){
+				//System.out.println(cld.getName() + " "+ tar.name() );
+				return cld;
+			}*/
+			if(tar.name().equals(cld.getName())){
 				//System.out.println(cld.getName() + " "+ tar.name() );
 				return cld;
 			}
