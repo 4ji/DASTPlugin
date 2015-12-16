@@ -29,6 +29,7 @@ import com.sun.jdi.event.VMStartEvent;
 import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.EventRequestManager;
 
+import dast.debug.DastDebugPlugin;
 import dast.model.IDastProject;
 
 /*implements �ｿｽ�ｿｽ�ｿｽ�ｿｽIDastDebugTarget�ｿｽ�ｿｽ�ｿｽ�ｿｽ�ｿｽO
@@ -127,6 +128,7 @@ class DastDebugTarget extends JDIDebugTargetAdapter implements IJavaDebugTarget
 						.getEventDispatcher();
 				if (dispatcher != null) {
 					System.out.println("addEventListner start"); //$NON-NLS-1$
+					DastDebugPlugin.log("addEventListner start");
 					try {
 						Thread.sleep(200);
 					} catch (InterruptedException e) {
@@ -134,6 +136,7 @@ class DastDebugTarget extends JDIDebugTargetAdapter implements IJavaDebugTarget
 						e.printStackTrace();
 					}
 					dispatcher.addJDIEventListener(listener, request);
+					DastDebugPlugin.log("addEventListner end");
 					System.out.println("addEventListner end"); //$NON-NLS-1$
 				}
 		  }else{
@@ -154,14 +157,15 @@ class DastDebugTarget extends JDIDebugTargetAdapter implements IJavaDebugTarget
 		  }*/
 		  
 		 try {
-			Thread.sleep(200);
+			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	    System.out.println("VMStart");
+	   DastDebugPlugin.log("HundleVMAtart start");
 	    super.handleVMStart(event);
-	    
+	     DastDebugPlugin.log("HundleVMAtart end");
 	    
 	    
 	  }
