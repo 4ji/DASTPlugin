@@ -1,5 +1,4 @@
 package dast.ui;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -20,6 +19,7 @@ import javax.swing.border.LineBorder;
 import com.sun.jdi.Field;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.PrimitiveType;
+import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Value;
 
 public class CellPanel extends JPanel {
@@ -81,12 +81,19 @@ public class CellPanel extends JPanel {
 			cp.add(new CellParts(str,color));
 			cp_num++;
 
-			Map<String, Object> field = cell.getAnotherField();
-			for (Iterator<Entry<String, Object>> it = field.entrySet().iterator(); it.hasNext();) {
-				Entry<String, Object> target = it.next();
-				if(target.getKey().matches(".*" + "Integer" + ".*")){
-					//System.out.println(((ObjectReference) target.getValue()).referenceType());
-					str = target.getKey() + " : " + ((Integer)(target.getValue())).intValue();
+			Map<String, Value> field = cell.getAnotherField();
+			for (Iterator<Entry<String, Value>> it = field.entrySet().iterator(); it.hasNext();) {
+				Entry<String,Value> target = it.next();
+				
+				if(target.getValue() != null &&(target.getValue().type().toString().equals("java.lang.Integer")|| target.getValue().type().toString().equals("class java.lang.Integer (no class loader)"))){
+					
+					if(target.getValue().type() instanceof ReferenceType){
+						Value v = target.getValue();
+						str = target.getKey() + " : " + ((ObjectReference)v).getValue(((ReferenceType)v.type()).fieldByName("value"));
+						cp.add(new CellParts(str));
+						cp_num++;
+					}
+					
 				}else{
 				if(target.getValue() == null){	
 				str = target.getKey() + " : " + target.getValue(); 
@@ -99,27 +106,7 @@ public class CellPanel extends JPanel {
 				}
 				}
 	
-				/*if (f.get(i).type() instanceof PrimitiveType) {
-					str = f.get(i).typeName() + " " + f.get(i).name()
-							+ " : " + tar.getValue(f.get(i));
-					cp[cp_num] = new CellParts(str);
-					cp_num++;
-				} else if (f.get(i).typeName().equals("String")
-						|| f.get(i).typeName().equals("Integer")) {
-					str = f.get(i).typeName() + " " + f.get(i).name()
-							+ " : " + tar.getValue(f.get(i));
-					cp[cp_num] = new CellParts(str);
-					cp_num++;
-				} else if(f.get(i).get(tar) instanceof Integer){
-					str = "Integer" + " " + f.get(i).getName()
-							+ " : " + f.get(i).get(tar);
-					cp[cp_num] = new CellParts(str);
-					cp_num++;
-				}else if(f.get(i).get(tar) instanceof String){
-					str = "String" + " " + f.get(i).getName()
-							+ " : " + f.get(i).get(tar);
-					cp[cp_num] = new CellParts(str);
-					cp_num++;*/
+				
 				}
 			
 			for(Iterator<Entry<String, Integer>> it = cell.getDef().getFields().entrySet().iterator();
@@ -166,48 +153,7 @@ public class CellPanel extends JPanel {
 					cp_num++;
 				}
 			}
-			/*
-			for (int i = 0; i < 8; i++) {
-				if (cell.getAroundFieldName()[i] != null) {
-					if (cell.getAround()[i] != null && cell.getAround()[i].isArray() == false) {
-						if (cell.getAround()[i] != null) {
-							str = cell.getAroundFieldName()[i]
-									+ " "
-									+ cell.getAround()[i].getObject().referenceType().name() + ":"
-									+ (cell.getAround()[i].getIndex());
-						
-						cp.add(new CellParts(str, Color.ORANGE));
-						cp_num++;
-						}
-					} else if(cell.getAround()[i] != null && cell.getAround()[i].isArray() == true){
-						str = cell.getAroundFieldName()[i]
-								+ " "
-								+ cell.getAround()[i].getObject().referenceType().name();
-								//+ ((ArrayInfo) (cell.getAround()[i])).getIndex();
-						cp.add(new CellParts(str, Color.ORANGE));
-						
-						cp_num++;
-					} else {
-
-						str = cell.getAroundFieldName()[i] + " " + "null";
-						cp.add(new CellParts(str, Color.ORANGE));
-						cp_num++;
-					}
-				}*/
-				/*if(cell.getAroundArrayName()[i] != null ){
-					if(cell.getAroundArray()[i] != null){
-						str = cell.getAroundArrayName()[i] + " " 
-								+ cell.getAround()[i].getobject().referenceType().name();
-						cp.add(new CellParts(str, Color.ORANGE));
-						cp_num++;
-						
-					}else{
-						str = cell.getAroundArrayName()[i] + " " + "null";
-						cp.add(new CellParts(str, Color.ORANGE));
-						cp_num++;
-					}
-				}*/
-			//}
+			
 			
 
 		} catch (Exception e) {
@@ -401,8 +347,14 @@ public class CellPanel extends JPanel {
 		LL.setBackground(Color.WHITE);
 		for (int i = 0; i < cell.getSize(); i++) {
 			if(cell.getValue(i) != null){
-			ll[i] = new CellParts(cell.getValue(i).toString());
-			//System.out.println(cell.getValue(i).toString());
+				if((cell.array.getValue(i).type().equals("java.lang.Integer")) || cell.array.getValue(i).type().toString().equals("class java.lang.Integer (no class loader)")){
+					ObjectReference or = ((ObjectReference)cell.array.getValue(i));
+					if(or != null){
+						ll[i] = new CellParts(or.getValue(((ReferenceType) or.type()).fieldByName("value")).toString());
+					}
+				}else{
+					ll[i] = new CellParts(cell.getValue(i).toString());
+				}
 			}else{
 				ll[i] = new CellParts("null");
 			}
@@ -500,7 +452,6 @@ public class CellPanel extends JPanel {
 
 	public int getCellLength() {
 		return this.getPreferredSize().height ;
-		//return this.length * 17 ; ‚È‚ñ‚Å‰‚ß‚±‚Á‚¿‚Å‘‚¢‚½H
 	}
 
 }

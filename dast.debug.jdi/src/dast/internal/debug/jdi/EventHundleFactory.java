@@ -58,6 +58,8 @@ final class EventHandlerFactory
 
   private  ObjectManager objectManager;
   private  ReadDast layoutDefinition;
+  
+  private boolean jivemode = false;
 
   public boolean ready = false;
   EventHandlerFactory(final DastDebugTarget owner)
@@ -84,13 +86,16 @@ final class EventHandlerFactory
 		  String projectName = owner.getProjectName();
 
 		  IPath path = root.getLocation();
-		  //System.out.println(path);
+
 		  String dastPath = path.toString() + "\\"+ projectName + "\\DASTFile" ;
-		  //System.out.println(dastPath);
+
 
 		  this.layoutDefinition = new ReadDast(new FileInputStream(dastPath));
-		 // this.layoutDefinition = new ReadDast(new FileInputStream("E:\\eclipse-rcp-neon3\\eclipse\\runtime-EclipseApplication\\BST\\DASTFile"));
-		  this.objectManager = new ObjectManager(layoutDefinition.getClassDefinition());
+
+		  
+
+			  this.objectManager = new ObjectManager(layoutDefinition.getClassDefinition());
+
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			this.layoutDefinition = null;
@@ -123,7 +128,7 @@ final class EventHandlerFactory
     	if(e.object() != null 
     			&& e.object().getValue(e.field()) != null 
     			&& e.object().getValue(e.field()).type() instanceof ArrayType){
-			System.out.println("array");
+
 			objectManager.arrayWrite(e);
 			objectManager.draw();
 		}
@@ -154,8 +159,7 @@ final class EventHandlerFactory
     public synchronized boolean handleEvent(final Event event, final JDIDebugTarget target,
         final boolean suspendVote, final EventSet eventSet)
     {
-     //classes.add(((ClassPrepareEvent) event).referenceType());
-    	//System.out.println(((ClassPrepareEvent) event).referenceType().toString());
+
       if(objectManager.isDefinedClass(((ClassPrepareEvent)event).referenceType()) != null){
     	  createFieldRequests(target, ((ClassPrepareEvent) event).referenceType());
     	  return true;
@@ -343,11 +347,9 @@ final class EventHandlerFactory
     {
       if (owner.isActive())
       {
-    	  /*MethodEntryEvent e = (MethodEntryEvent)event;
-    	  System.out.println(e.method().name());
-    	  if(e.method().name() == "main"){
+
     		  
-    	  }*/
+
       }
       return true;
     }
@@ -364,7 +366,6 @@ final class EventHandlerFactory
             removeRequest();
           }
           request = manager.createMethodEntryRequest();
-         // owner.jdiManager().modelFilter().filter(request);
           request.setSuspendPolicy(EventRequest.SUSPEND_NONE);
           request.enable();
           owner.addJDIEventListener(this, request);
@@ -433,7 +434,6 @@ final class EventHandlerFactory
             removeRequest();
           }
           request = manager.createMethodExitRequest();
-          //owner.jdiManager().modelFilter().filter(request);
           request.setSuspendPolicy(EventRequest.SUSPEND_NONE);
           request.enable();
           owner.addJDIEventListener(this, request);
@@ -484,12 +484,25 @@ final class EventHandlerFactory
       if (owner.isActive())
       {
     	  ModificationWatchpointEvent e = (ModificationWatchpointEvent)event;
+    	  if(!jivemode){
           if(objectManager != null && 
         		  e != null &&
+        		  e.object() != null &&
         		  objectManager.classPrepare(e.object().referenceType())){
           	objectManager.fieldWrite(e);
           	objectManager.draw();
+          	
           }
+    	  }else{
+
+    		  
+    		  if(objectManager != null && 
+            		  e != null &&
+            		  objectManager.classPrepare(e.object().referenceType())){
+              	objectManager.fieldWrite(e);
+              	objectManager.draw();
+              }
+    	  }
       	
       }
       return true;

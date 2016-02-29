@@ -2,6 +2,7 @@ package dast.ui;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import com.sun.jdi.ArrayReference;
@@ -20,7 +21,7 @@ public class ObjectManager {
 	private List<ReferenceType> preparedClass = new ArrayList<ReferenceType>();
 	private List<ClassDefinition> targetClass = new ArrayList<ClassDefinition>();
 	private List<ObjectReference> targetObject = new ArrayList<ObjectReference>();
-	private List<ObjectInfo> objectInfo = new ArrayList<ObjectInfo>();
+	protected List<ObjectInfo> objectInfo = new ArrayList<ObjectInfo>();
 	//private List<List<ObjectInfo>> objectInfoMemory = new ArrayList<List<ObjectInfo>>();
 	private List<ArrayInfo> arrayInfo = new ArrayList<ArrayInfo>();
 	private List<ObjectInfo> drawTarget;
@@ -64,7 +65,7 @@ public class ObjectManager {
 				
 		
 		try {
-			oin.setLink(time, e.field());
+			oin.setLink(time, e.field(), e.valueToBe());
 		} catch (IllegalArgumentException ex1) {
 			// TODO Auto-generated catch block
 			ex1.printStackTrace();
@@ -74,6 +75,34 @@ public class ObjectManager {
 		}
 		
 		//refreshAllObjectField();
+	}
+	
+	public void staticFieldWrite(ModificationWatchpointEvent e){
+		incTime();
+		String ClsName = e.field().declaringType().name();
+		ClassDefinition cld = null;
+		for(int i = 0; i < targetClass.size();i++ ){
+			if(ClsName.equals(targetClass.get(i).getName())){
+				cld = targetClass.get(i);
+			}
+		}
+		if(cld != null){
+			for(int i = 0; i < objectInfo.size(); i++){
+				ObjectInfo obi = objectInfo.get(i);
+				if(obi.getDef() == cld){
+					try {
+						obi.setLink(time, e.field(), e.valueToBe());
+					} catch (IllegalArgumentException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (IllegalAccessException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+			}
+
+		}
 	}
 	
 	public void arrayWrite(AccessWatchpointEvent e){
@@ -96,6 +125,7 @@ public class ObjectManager {
 			getTargetObject().add(tar);
 			ObjectInfo object = new ObjectInfo(tar, cld, this);
 			objectInfo.add(object);
+			object.checkStatic(time);
 			return object;
 	}
 	
@@ -150,7 +180,7 @@ public class ObjectManager {
 		}
 	}*/
 	
-	public void draw(){
+	public synchronized void draw(){
 		
 		if(objectInfo.size() > 0){
 		
@@ -301,17 +331,7 @@ public class ObjectManager {
 		
 		for(Iterator<ClassDefinition> it = targetClass.iterator(); it.hasNext();){
 			ClassDefinition cld = ((ClassDefinition) it.next());
-			//System.out.println(tar.name() + " "+cld.getName());
-			
-			/*if(tar.name().matches("\\" + cld.getName() + "$")){
-				//System.out.println(cld.getName() + " "+ tar.name() );
-				return cld;
-			}else if(tar.name().equals(cld.getName())){
-				//System.out.println(cld.getName() + " "+ tar.name() );
-				return cld;
-			}*/
 			if(tar.name().equals(cld.getName())){
-				//System.out.println(cld.getName() + " "+ tar.name() );
 				return cld;
 			}
 		}
@@ -346,7 +366,7 @@ public class ObjectManager {
 	}
 
 
-	
+	/*
 	public void check(ObjectReference obj){
 		ObjectInfo obin = isMadeObjectInfo(obj);
 		for(Iterator<Field> fIt = obj.referenceType().allFields().iterator(); fIt.hasNext();){
@@ -364,7 +384,7 @@ public class ObjectManager {
 				}
 			}
 		}
-	}
+	}*/
 
 	public boolean checkArray() {
 		boolean changed = false;
@@ -414,7 +434,6 @@ public class ObjectManager {
 		for(Iterator<ReferenceType> it = allClasses.iterator(); it.hasNext();){
 			ReferenceType ref = it.next();
 			if(isDefinedClass(ref) != null){
-				System.out.println(ref.toString());
 			}
 		}
 	}

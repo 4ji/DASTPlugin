@@ -23,7 +23,7 @@ import com.sun.jdi.ThreadReference;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.event.Event;
 import com.sun.jdi.event.EventSet;
-
+import com.sun.jdi.event.VMDeathEvent;
 import com.sun.jdi.event.VMDisconnectEvent;
 import com.sun.jdi.event.VMStartEvent;
 import com.sun.jdi.request.EventRequest;
@@ -58,8 +58,7 @@ class DastDebugTarget extends JDIDebugTargetAdapter implements IJavaDebugTarget
 		    this.projectName = projectName;
 		    new ThreadDeathHandler();
 		    this.eventHandlerFactory = new EventHandlerFactory(this);
-		    //this.eventHandlerFactory = null;
-		    System.out.println("");
+
 		  }
 
 	  public boolean isActive()
@@ -127,7 +126,6 @@ class DastDebugTarget extends JDIDebugTargetAdapter implements IJavaDebugTarget
 			  EventDispatcher dispatcher = ((JDIDebugTarget) getDebugTarget())
 						.getEventDispatcher();
 				if (dispatcher != null) {
-					System.out.println("addEventListner start"); //$NON-NLS-1$
 					DastDebugPlugin.log("addEventListner start");
 					try {
 						Thread.sleep(200);
@@ -137,7 +135,6 @@ class DastDebugTarget extends JDIDebugTargetAdapter implements IJavaDebugTarget
 					}
 					dispatcher.addJDIEventListener(listener, request);
 					DastDebugPlugin.log("addEventListner end");
-					System.out.println("addEventListner end"); //$NON-NLS-1$
 				}
 		  }else{
 			  EventDispatcher dispatcher = ((JDIDebugTarget) getDebugTarget())
@@ -152,17 +149,14 @@ class DastDebugTarget extends JDIDebugTargetAdapter implements IJavaDebugTarget
 	  @Override
 	  public void handleVMStart(final VMStartEvent event)
 	  {
-		 /* while(eventHandlerFactory == null || eventHandlerFactory.ready == false){
-			  System.out.println("wait");
-		  }*/
+
 		  
 		 try {
-			Thread.sleep(1000);
+			Thread.sleep(200);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	    System.out.println("VMStart");
 	   DastDebugPlugin.log("HundleVMAtart start");
 	    super.handleVMStart(event);
 	     DastDebugPlugin.log("HundleVMAtart end");
@@ -173,10 +167,12 @@ class DastDebugTarget extends JDIDebugTargetAdapter implements IJavaDebugTarget
 	@Override
 	  public void handleVMDisconnect(final VMDisconnectEvent event)
 	  {
-	    if (isActive())
-	    {
-	    	//eventHandlerFactory.handleVMDisconnect(event);
-	    }
+		 try {
+				Thread.sleep(300);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	    super.handleVMDisconnect(event);
 	  }
 
@@ -196,5 +192,18 @@ class DastDebugTarget extends JDIDebugTargetAdapter implements IJavaDebugTarget
 	    return null;
 	  }
 	
-	
+
+	  @Override
+	  public void handleVMDeath(final VMDeathEvent event)
+	  {
+	    try {
+			Thread.sleep(300);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	    super.handleVMDeath(event);
+	  }
+
+
 }

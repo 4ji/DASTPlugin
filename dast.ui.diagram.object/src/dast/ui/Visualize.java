@@ -41,13 +41,7 @@ public class Visualize extends JFrame{
 		this.setLocationRelativeTo(null);
 		this.jiveMode = mode;
 		
-		//this.setLayout(null);
-		
-		/*for(Iterator<ObjectInfo> it = cell.iterator(); it.hasNext();){
-			ObjectInfo oi = it.next();
-			System.out.println(oi);
-		}
-		System.out.println("--");*/
+
 		
 		panel = new BasePane(cell, this, jiveMode);
 		lastCellList = cell;
@@ -59,11 +53,7 @@ public class Visualize extends JFrame{
 		
 		scrollpane.setVisible(true);
 		mainPanel = scrollpane;
-		
-		//line = new LinePanel(cell, panel.getCellPanel(), panel.getPreferredSize());
-		//line.setVisible(true);
-		//contentPane.add(line);
-		//mainLine = line;
+
 		
 		panelList.add(scrollpane);
 		this.setVisible(true);
@@ -83,14 +73,7 @@ public class Visualize extends JFrame{
 		this.setTitle("ver14");
 		this.setBackground(Color.WHITE);
 		this.setLocationRelativeTo(null);
-		
-		//this.setLayout(null);
-		
-		/*for(Iterator<ObjectInfo> it = cell.iterator(); it.hasNext();){
-			ObjectInfo oi = it.next();
-			System.out.println(oi);
-		}
-		System.out.println("--");*/
+
 		
 		panel = new BasePane(cell, this, jiveMode);
 		lastCellList = cell;
@@ -122,11 +105,7 @@ public class Visualize extends JFrame{
 	}
 	
 	public void reDraw(List<ObjectInfo> cell){
-		/*for(Iterator<ObjectInfo> it = cell.iterator(); it.hasNext();){
-			ObjectInfo oi = it.next();
-			System.out.println(oi);
-		}
-		System.out.println("--");*/
+		
 		
 		panel = new BasePane(cell, this, jiveMode);
 		JScrollPane scrollpane = new JScrollPane(panel);

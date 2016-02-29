@@ -25,6 +25,7 @@ import com.sun.jdi.Field;
 import com.sun.jdi.IntegerType;
 import com.sun.jdi.IntegerValue;
 import com.sun.jdi.ObjectReference;
+import com.sun.jdi.PrimitiveType;
 import com.sun.jdi.PrimitiveValue;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.StringReference;
@@ -32,7 +33,7 @@ import com.sun.jdi.Type;
 import com.sun.jdi.Value;
 import com.sun.jdi.event.ModificationWatchpointEvent;
 
-import dast.ui.ObjectInfo.ArrayPair;
+//import dast.ui.ObjectInfo.ArrayPair;
 
 @SuppressWarnings("restriction")
 public class ObjectInfo {
@@ -73,7 +74,7 @@ public class ObjectInfo {
 	private String[] aroundFieldName = new String[8];
 	private int[] aroundFieldWriteTime = {0, 0, 0, 0, 0, 0, 0, 0};
 	private int[] aroundArrayWriteTime = {0, 0, 0, 0, 0, 0, 0, 0};
-	private Map<String, Object> anotherField = new HashMap<String,Object>();
+	private Map<String, Value> anotherField = new HashMap<String,Value>();
 	private List<Field> linkedField = new ArrayList<Field>();
 	private List<ArrayPair> linkedArray = new ArrayList<ArrayPair>();
 	protected int around_size[]  = { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -98,6 +99,8 @@ public class ObjectInfo {
 	private String primitiveType;
 	private ObjectInfo lastLinked;
 	private int headPoint = 0;
+	
+	private boolean head = false;
 
 
 	
@@ -138,7 +141,7 @@ public class ObjectInfo {
 
 	}
 	
-	private void setFieldName(){
+	void setFieldName(){
 		if(def == null){
 			return;
 		}
@@ -166,7 +169,8 @@ public class ObjectInfo {
 	
 	private void setAroundArrayName(Integer direction,  Field tar){
 		try {
-			if(tar.type() instanceof ArrayType){
+			if(tar.type() instanceof ArrayType &&
+					((((ArrayType)tar.type()).componentType() instanceof PrimitiveType) || ((ArrayType)tar.type()).componentType().toString().indexOf("java.lang.Integer") != -1)){
 				aroundArrayName[direction] = tar.name();
 			}else{
 				 aroundArrayName[direction] = aroundFieldName[direction];
@@ -181,7 +185,7 @@ public class ObjectInfo {
 	public void setAnotherField(Field field, Value value){
 		try {
 			if(field.type() instanceof IntegerType){
-				anotherField.put("int " + field.name(), ((IntegerValue)value).value());
+				anotherField.put("int " + field.name(), value);
 			}else if(field.type() instanceof DoubleType){
 				anotherField.put("double " + field.name(), value);
 			}else if(field.type() instanceof BooleanType){
@@ -207,6 +211,24 @@ public class ObjectInfo {
 		}
 	}
 
+	public void checkStatic(int time){
+		List<Field> fields = object.referenceType().allFields();
+		for(int i = 0; i < fields.size(); i++){
+			Field tar = fields.get(i);
+			if(tar.isStatic() && def.getDirectionByName(tar.name()) != -1){
+				try {
+					setLink(time, tar, object.getValue(tar));
+				} catch (IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
 	private int isAroundField(Field field){
 		for(int i = 0; i <= 7; i++){
 			if(aroundFieldName[i] == field.name()){
@@ -221,7 +243,7 @@ public class ObjectInfo {
 		return -1;
 	}
 	
-	public void setLink(int time, Field field) throws IllegalArgumentException, IllegalAccessException{
+	public void setLink(int time, Field field, Value v) throws IllegalArgumentException, IllegalAccessException{
 		Map<String, Integer> fieldDirection = def.getFields();
 			Integer direction = fieldDirection.get(field.name());
 			if(direction == null){
@@ -229,9 +251,9 @@ public class ObjectInfo {
 			}
 			
 		
-			if(direction != null && object.getValue(field) != null){
+			if(direction != null && v != null){
 				ObjectInfo obin = null;
-				ObjectReference value = (ObjectReference) object.getValue(field);
+				ObjectReference value = (ObjectReference) v;
 				if(value != null){
 					obin = om.searchObjectInfo(value);
 				}
@@ -250,7 +272,9 @@ public class ObjectInfo {
 				}else if(direction == 8){
 					noDirectionField.put(field.name(), obin);
 				}
-				obin.linked(this, field);
+				if(obin != null){
+					obin.linked(this, field);
+				}
 			}else if(direction == null){
 				setAnotherField(field, object.getValue(field) );
 			}
@@ -415,7 +439,7 @@ public class ObjectInfo {
 	
 	
 	void setPosion(int ulx, int uly,int time, int h, ArrayList<ObjectInfo> parent){
-		if(set == true && (this.time > time|| this.h <= 1 || parent.get(parent.size()-1).isLinked() == false)){
+		if(set == true && (this.time > time|| this.h <= 1 ||(parent.size() != 0 &&  parent.get(parent.size()-1).isLinked() == false))){
 			return;
 		}
 		ArrayList<ObjectInfo> newParent = new ArrayList<ObjectInfo>(); 
@@ -482,12 +506,6 @@ public class ObjectInfo {
 			
 		}
 		
-		/*for(Iterator<ObjectInfo> it = list.iterator(); it.hasNext();){
-			ObjectInfo obji = it.next();
-			if(obji.set == true && obji.getPx() == x && obji.getPy() == y && obji != this){
-				return;
-			}
-		}*/
 		
 		px = x;
 		py = y;
@@ -680,7 +698,7 @@ public class ObjectInfo {
 		return ownLength;
 	}
 
-	public Map<String, Object> getAnotherField() {
+	public Map<String, Value> getAnotherField() {
 		return anotherField;
 	}
 
@@ -921,5 +939,13 @@ public class ObjectInfo {
 	}
 	
 	
+	public boolean isHead(){
+		return head;
+	}
+	
+	public void setHead(){
+		this.head = true;
+	}
 
 }
+

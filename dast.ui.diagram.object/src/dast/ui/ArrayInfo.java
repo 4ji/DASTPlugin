@@ -65,9 +65,11 @@ public class ArrayInfo extends ObjectInfo {
 	}
 
 	private void checkPrimitive() {
+		
 		if (array.getValue(0) instanceof PrimitiveValue
 				//|| (((ArrayType) type).componentType().toString().matches(".*" + "java.lang.String" + ".*"))
-				|| ((ArrayType) type).componentTypeName().equals("java.lang.String")) {
+				|| ((ArrayType) type).componentTypeName().equals("java.lang.String")
+				|| ((ArrayType) type).componentTypeName().equals("java.lang.Integer")) {
 			this.isPrimitive = true;
 		}
 	}
@@ -105,37 +107,7 @@ public class ArrayInfo extends ObjectInfo {
 			}
 		}
 	}
-	/*
-	 * 
-	 * public void setLink(int time){ try { boolean isRead = false; for(int i =
-	 * 0; i < size; i++){ if(array != null && array.getValue(i) != null){ isRead
-	 * = true; break; }else if(array == null){ //System.out.println("E1"); } }
-	 * if(isRead){
-	 * 
-	 * if((((ArrayType)type).componentType() instanceof PrimitiveType ) ||
-	 * ((((ArrayType)type).componentType().toString().matches(".*" +
-	 * "java.lang.String" + ".*")))){ this.isPrimitive = true; } if(((ArrayType)
-	 * type).componentTypeName().equals("java.lang.String")){
-	 * 
-	 * this.isPrimitive = true; } } } catch (ClassNotLoadedException e) { //
-	 * TODO Auto-generated catch block e.printStackTrace(); }
-	 * //System.out.println(isPrimitive); if(isPrimitive){
-	 * if(primitiveArrayValue == null){ primitiveArrayValue = new Value[size]; }
-	 * for(int i = 0; i < size; i++){ primitiveArrayValue[i] =
-	 * array.getValue(i); } }else{ if(arrayValue == null){ arrayValue = new
-	 * ObjectInfo[size]; changeTime = new int[size]; } for(int i = 0; i < size;
-	 * i++){ ObjectInfo obin =
-	 * om.searchObjectInfo((ObjectReference)array.getValue(i)); if(obin != null
-	 * && arrayValue[i] != obin){ arrayValue[i] = obin; changeTime[i] = time; }
-	 * if(arrayValue[i] != null){ arrayValue[i].linked(this); this.link();
-	 * }else{ ObjectReference tar = (ObjectReference) array.getValue(i); if(tar
-	 * != null){ ClassDefinition cld = om.isDefinedClass(tar.referenceType());
-	 * if(cld != null){ om.getTargetObject().add(tar); ObjectInfo object = new
-	 * ObjectInfo(tar, (ReferenceType)tar.referenceType(), cld, om);
-	 * object.setField(); om.getObjectInfo().add(object); } } }
-	 * 
-	 * } } }
-	 */
+
 
 	public void calculateSize() {
 
@@ -222,7 +194,6 @@ public class ArrayInfo extends ObjectInfo {
 
 	void setSize() {
 		int cent = size / 2;
-		// System.out.println(cent);
 		if (directed == 3 || directed == 4) {
 			int child_width = 0;
 			for (int i = 0; i < cent; i++) {
@@ -265,7 +236,7 @@ public class ArrayInfo extends ObjectInfo {
 			for (int i = 0; i < cent; i++) {
 				if (arrayValue[i] != null) {
 					left_half += arrayValue[i].getWidth();
-					if (child_length > arrayValue[i].getLength()) {
+					if (child_length < arrayValue[i].getLength()) {
 						child_length = arrayValue[i].getLength();
 					}
 				} else {
@@ -274,7 +245,7 @@ public class ArrayInfo extends ObjectInfo {
 			}
 			if (arrayValue[cent] != null) {
 				left_half += arrayValue[cent].getLeftHalf();
-				if (child_length > arrayValue[cent].getLength()) {
+				if (child_length < arrayValue[cent].getLength()) {
 					child_length = arrayValue[cent].getLength();
 				}
 			}
@@ -353,13 +324,13 @@ public class ArrayInfo extends ObjectInfo {
 		}
 
 		/*
-		 * System.out.println(type.name() + index + ":(" + px + "," + py +
-		 * ") "); System.out.println("l:" + getLeftHalf() + " r:"+
-		 * getRightHalf() + " u:" + getUpHalf() + " d:" + getBottomHalf());
-		 * System.out.println("ulx:" + ulx + " uly:" + uly);
-		 * System.out.println("width:" + getWidth() + " length:" + getLength());
-		 * System.out.println();
+		 System.out.println(type.name() + index + ":(" + px + "," + py +") "); System.out.println("l:" + getLeftHalf() + " r:"+
+		  getRightHalf() + " u:" + getUpHalf() + " d:" + getBottomHalf());
+		  System.out.println("ulx:" + ulx + " uly:" + uly);
+		  System.out.println("width:" + getWidth() + " length:" + getLength());
+		  System.out.println();
 		 */
+		
 		if (directed >= 0 && directed <= 2) {
 			int nx = 0;
 			for (int i = 0; i < size; i++) {
@@ -433,13 +404,12 @@ public class ArrayInfo extends ObjectInfo {
 			py = uly + getUpHalf();
 		}
 
-		/*
-		 * System.out.println(type.toString() + index + ":(" + px + "," + py +
-		 * ") "); System.out.println("l:" + getLeftHalf() + " r:"+
-		 * getRightHalf() + " u:" + getUpHalf() + " d:" + getBottomHalf());
-		 * System.out.println("ulx:" + ulx + " uly:" + uly);
-		 * System.out.println("width:" + getWidth() + " length:" + getLength());
-		 */
+/*		
+		  System.out.println(type.toString() + index + ":(" + px + "," + py +") "); System.out.println("l:" + getLeftHalf() + " r:"+
+		  getRightHalf() + " u:" + getUpHalf() + " d:" + getBottomHalf());
+		  System.out.println("ulx:" + ulx + " uly:" + uly);
+		 System.out.println("width:" + getWidth() + " length:" + getLength());
+	*/	 
 	}
 
 	boolean checkObject(Object obj) {
@@ -606,3 +576,4 @@ public class ArrayInfo extends ObjectInfo {
 	}
 
 }
+

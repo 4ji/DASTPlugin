@@ -19,7 +19,7 @@ public class LinePanel extends JPanel{
 	private static final long serialVersionUID = 1L;
 	protected static final int LineLength = 17;	
 	
-	private int drawMode = 2;
+
 	protected int coordinateLine = 5;
 	
 	protected BasePane base;
@@ -56,15 +56,21 @@ public class LinePanel extends JPanel{
 		int sy;
 		int gx;
 		int gy;
+		boolean st = false;
 		
 		CellPanel tar;
 		
-		ConnectPoint(int ax, int ay, int bx, int by, CellPanel tar){
+		ConnectPoint(int ax, int ay, int bx, int by, CellPanel tar, boolean turn){
 			this.sx = ax;
 			this.sy = ay;
 			this.gx = bx;
 			this.gy = by;
 			this.tar = tar;
+			this.st = turn;
+		}
+		
+		ConnectPoint(int ax, int ay, int bx, int by, CellPanel tar){
+			this(ax,ay,bx,by,tar,false);
 		}
 	}
 	
@@ -91,129 +97,7 @@ public class LinePanel extends JPanel{
 		ObjectInfo around[] = oin.getAround();
 		CellPanel tar;
 		if(!(oin instanceof ArrayInfo)){
-			if(drawMode == 1){
-		for(int i = 0;i <= 7;i++ ){ 
-			if(around[i] != null && ((tar = searchPanel(around[i]) )!= null)){
-				
-				if(i == 0 || i == 2){
-					if(oin.getPy() > around[i].getPy()){
-						arrowList.add(new ConnectPoint(cell.getX() + cell.getCellWidth() / 2, cell.getY(), tar.getX() + tar.getCellWidth() / 2, 
-								tar.getY() + tar.getCellLength() + 3, tar));
-				
-					}else{
-						int nx;
-						if(i == 0){
-							nx = cell.getX() -20;
-						}else{
-							nx = cell.getX() + cell.getCellWidth() + 20;
-						}
-						lineList.add(new ConnectPoint(cell.getX() + cell.getCellWidth() / 2, cell.getY(), nx, cell.getY() + cell.getCellLength()-10, tar));
-						lineList.add(new ConnectPoint(nx, cell.getY() + cell.getCellLength()-10, nx, tar.getY() + 10, tar));
-						lineList.add(new ConnectPoint(nx, tar.getY() + 10, tar.getX() + tar.getCellWidth() / 2, tar.getY() + 10,tar));
-						arrowList.add(new ConnectPoint(tar.getX() + tar.getCellWidth() / 2, tar.getY() + 10, tar.getX() + tar.getCellWidth() / 2, tar.getY() + tar.getCellLength(), tar));
-					}
-				}else if(i == 1){
-					if(oin.getPy() > around[i].getPy()){
-						if(oin.getPx() == around[i].getPx()){
-							arrowList.add(new ConnectPoint(cell.getX() + cell.getCellWidth() / 2, cell.getY(), cell.getX() + cell.getCellWidth() / 2,tar.getY() + tar.getCellLength(), tar));
-						}else{
-							lineList.add(new ConnectPoint(cell.getX() + cell.getCellWidth()/2, cell.getY(), cell.getX() + cell.getCellWidth() / 2, cell.getY() -10, tar));
-							lineList.add(new ConnectPoint(cell.getX() + cell.getCellWidth() / 2, cell.getY() -10, tar.getX() + tar.getCellWidth() / 2,cell.getY() -10, tar));
-							arrowList.add(new ConnectPoint(tar.getX() + tar.getCellWidth() / 2,cell.getY() -10, tar.getX() + tar.getCellWidth() / 2, tar.getY() + tar.getCellLength(), tar));
-						}
-					}else{
-						int nx;
-						lineList.add(new ConnectPoint(cell.getX() + cell.getCellWidth() / 2,cell.getY(), cell.getX() + cell.getCellWidth() / 2, cell.getY() - 10, tar));
-						if(oin.getPx() > around[i].getPx()){
-							nx = tar.getX() + tar.getCellWidth() + 10;
-						}else{
-							nx = tar.getX() - 10;
-						}
-						lineList.add(new ConnectPoint(cell.getX() + cell.getCellWidth() / 2, cell.getY() - 10, nx, cell.getY() - 10 , tar));
-						lineList.add(new ConnectPoint(nx, cell.getY() - 10, nx, tar.getY() + tar.getCellLength() + 10, tar));
-						lineList.add(new ConnectPoint( nx, tar.getY() + tar.getCellLength() + 10,tar.getX() + tar.getCellWidth() / 2, tar.getCellLength() + 10, tar));
-						arrowList.add(new ConnectPoint(tar.getX() + tar.getCellWidth() / 2, tar.getCellLength() + 10, tar.getX() + tar.getCellWidth() / 2, tar.getY() + tar.getCellLength(), tar));
-					}
-						
-				}else if(i == 3){
-					if(oin.getPx() > around[i].getPx()){
-						arrowList.add(new ConnectPoint(cell.getX(), cell.getY() + cell.getCellLength() / 2,  tar.getX() + tar.getCellWidth(), cell.getY() +  cell.getCellLength() / 2, tar));
-					}else{
-						lineList.add(new ConnectPoint(cell.getX(), cell.getY() + cell.getCellLength() / 2,cell.getX()-10 , cell.getY() + cell.getCellLength() / 2, tar));
-						if(oin.getBottomHalf() > around[i].getBottomHalf()){
-							lineList.add(new ConnectPoint(cell.getX()-10 , cell.getY() + cell.getCellLength() / 2,cell.getX()-10 ,cell.getY() + cell.getCellLength() + 10, tar));
-							lineList.add(new ConnectPoint(cell.getX()-10 ,cell.getY() + cell.getCellLength() + 10, tar.getX() + tar.getCellWidth() + 10, cell.getY() + cell.getCellLength() + 10, tar));
-							lineList.add(new ConnectPoint( tar.getX() + tar.getCellWidth() + 10, cell.getY() + cell.getCellLength() + 10 ,tar.getX() + tar.getCellWidth() + 10, tar.getY() + tar.getCellLength() / 2 , tar));
-							arrowList.add(new ConnectPoint(tar.getX() + tar.getCellWidth() + 10, tar.getY() + tar.getCellLength() / 2 , tar.getX() + tar.getCellWidth(),tar.getY() + tar.getCellLength() / 2, tar ));
-						}else{
-							lineList.add(new ConnectPoint(cell.getX()-10 , cell.getY() + cell.getCellLength() / 2,cell.getX()-10 ,cell.getY() + tar.getCellLength() + 10, tar));
-							lineList.add(new ConnectPoint(cell.getX()-10 ,cell.getY() + tar.getCellLength() + 10, tar.getX() + tar.getCellWidth() + 10,cell.getY() + tar.getCellLength() + 10, tar));
-							lineList.add(new ConnectPoint( tar.getX() + tar.getCellWidth() + 10,cell.getY() + tar.getCellLength() + 10,tar.getX() + tar.getCellWidth() + 10, tar.getY() + tar.getCellLength() / 2 , tar));
-							arrowList.add(new ConnectPoint(tar.getX() + tar.getCellWidth() + 10, tar.getY() + tar.getCellLength() / 2 , tar.getX() + tar.getCellWidth(),tar.getY() + tar.getCellLength() / 2, tar));
-						}
-															
-					}
-				}else if(i == 4){
-					if(oin.getPx() < around[i].getPx()){
-						arrowList.add(new ConnectPoint(cell.getX() + cell.getCellWidth(), cell.getY() + cell.getCellLength() / 2, tar.getX(), cell.getY() + cell.getCellLength() / 2, tar));
-					}else{
-						lineList.add(new ConnectPoint(cell.getX() + cell.getCellWidth(), cell.getY() + cell.getCellLength() / 2,cell.getX()+cell.getCellWidth() + 10 , cell.getY() + cell.getCellLength() / 2, tar));
-						if(oin.getBottomHalf() >= around[i].getBottomHalf()){
-							lineList.add(new ConnectPoint(cell.getX()+cell.getCellWidth() + 10 , cell.getY() + cell.getCellLength() / 2,cell.getX()+cell.getCellWidth() + 10 ,cell.getY() + cell.getCellLength() + 10, tar));
-							lineList.add(new ConnectPoint(cell.getX()-10 ,cell.getY() + cell.getCellLength() + 10, tar.getX()  - 10, cell.getY() + cell.getCellLength() + 10, tar));
-							lineList.add(new ConnectPoint( tar.getX() - 10, cell.getY() + cell.getCellLength() + 10,tar.getX() - 10, tar.getY() + tar.getCellLength() / 2 , tar));
-							arrowList.add(new ConnectPoint(tar.getX() - 10, tar.getY() + tar.getCellLength() / 2, tar.getX(),tar.getY() + tar.getCellLength() / 2, tar));
-						}else{
-							lineList.add(new ConnectPoint(cell.getX()+cell.getCellWidth() + 10 , cell.getY() + cell.getCellLength() / 2,cell.getX()+cell.getCellWidth() + 10,cell.getY() + tar.getCellLength() + 10, tar));
-							lineList.add(new ConnectPoint(cell.getX()+10 ,cell.getY() + tar.getCellLength() + 10, tar.getX() - 10,cell.getY() + tar.getCellLength() + 10, tar));
-							lineList.add(new ConnectPoint(tar.getX() - 10,cell.getY() + tar.getCellLength() + 10,tar.getX()-10 , tar.getY() + tar.getCellLength() / 2 , tar));
-							arrowList.add(new ConnectPoint(tar.getX()-10 , tar.getY() + tar.getCellLength() / 2 , tar.getX(),tar.getY() + tar.getCellLength() / 2, tar));
-						}
-					}
-				}else if (i == 5 || i == 7){
-					if(oin.getPy() < around[i].getPy()){
-						arrowList.add(new ConnectPoint(cell.getX() + cell.getCellWidth() / 2, cell.getY() + cell.getCellLength(), tar.getX() + tar.getCellWidth() / 2, tar.getY() -3, tar));
-					}else{
-						int nx;
-						if(i == 5){
-							nx = cell.getX() -10;
-						}else{
-							nx = cell.getX() + cell.getCellWidth() + 10;
-						}
-						lineList.add(new ConnectPoint(cell.getX() + cell.getCellWidth() / 2, cell.getY() + cell.getCellLength(), nx, cell.getY() + cell.getCellLength()+10, tar));
-						lineList.add(new ConnectPoint(nx, cell.getY() + cell.getCellLength()+10, nx, tar.getY() - 10, tar));
-						lineList.add(new ConnectPoint(nx, tar.getY() - 10, tar.getX() + tar.getCellWidth() / 2, tar.getY() - 10, tar));
-						arrowList.add(new ConnectPoint(tar.getX() + tar.getCellWidth() / 2, tar.getY() - 10, tar.getX() + tar.getCellWidth() / 2, tar.getY(), tar));
-					}
-				}else{
-					if(oin.getPy() < around[i].getPy()){
-						if(oin.getPx() == around[i].getPx()){
-							arrowList.add(new ConnectPoint(cell.getX() + cell.getCellWidth() / 2, cell.getY() + cell.getCellLength(), cell.getX() + cell.getCellWidth() / 2, tar.getY()-3, tar));
-						}else{
-							lineList.add(new ConnectPoint(cell.getX() + cell.getCellWidth() / 2, cell.getY() + cell.getCellLength(), cell.getX() + cell.getCellWidth() / 2, cell.getY() + cell.getCellLength() + 10, tar));
-							lineList.add(new ConnectPoint(cell.getX() + cell.getCellWidth() / 2, cell.getY() + cell.getCellLength() + 10, tar.getX() + tar.getCellWidth() / 2, cell.getY() + cell.getCellLength() + 10, tar));
-							arrowList.add(new ConnectPoint(tar.getX() + tar.getCellWidth() / 2, cell.getY() + cell.getCellLength() + 10, tar.getX() + tar.getCellWidth() / 2 ,tar.getY(), tar));
-						}
-						
-					}else{
-						lineList.add(new ConnectPoint(cell.getX() + cell.getCellWidth() / 2,cell.getY() + cell.getCellLength(), cell.getX() + cell.getCellWidth() / 2, cell.getY() + cell.getCellLength() + 10, tar));
-						if(oin.getPx() > around[i].getPx()){
-							lineList.add(new ConnectPoint(cell.getX() + cell.getCellWidth() / 2, cell.getY() + cell.getCellLength() + 10,tar.getX() + tar.getCellWidth() + 10,cell.getY() + cell.getCellLength() + 10, tar)); 
-							lineList.add(new ConnectPoint(tar.getX() + tar.getCellWidth() + 10,cell.getY() + cell.getCellLength() + 10, tar.getX() + tar.getCellWidth() + 10, tar.getY() -10, tar));
-							lineList.add(new ConnectPoint(tar.getX() + tar.getCellWidth() + 10, tar.getY() -10, tar.getX() + tar.getCellWidth() / 2, tar.getY() -10, tar));
-						}else{
-							lineList.add(new ConnectPoint(cell.getX() + cell.getCellWidth() / 2, cell.getY() + cell.getCellLength() + 10,tar.getX() - 10,cell.getY() + cell.getCellLength() + 10, tar)); 
-							lineList.add(new ConnectPoint(tar.getX() - 10,cell.getY() + cell.getCellLength() + 10, tar.getX() - 10, tar.getY() -10, tar));
-							lineList.add(new ConnectPoint(tar.getX() - 10, tar.getY() -10, tar.getX() + tar.getCellWidth() / 2, tar.getY() -10, tar));
-						}
-						arrowList.add(new ConnectPoint(tar.getX() + tar.getCellWidth() / 2, tar.getY() -10, tar.getX() + tar.getCellWidth() / 2, tar.getY(), tar));
-					}
-				}
-			}
-		}
-			}else if(drawMode == 2){
-				setPoint2(ent);
-		}
+			setPoint2(ent);			
 		}else{
 			if(!((ArrayInfo)oin).isPrimitive()){
 			ArrayInfo array = (ArrayInfo)(oin);
@@ -221,12 +105,12 @@ public class LinePanel extends JPanel{
 			for(int i = 0; i < arrayValue.length; i++){
 				if(arrayValue[i] != null && (tar = searchPanel(arrayValue[i]) )!= null){
 					if(array.getDirection() >= 5 && array.getDirection() <= 7){
-						arrowList.add(new ConnectPoint(cell.getX() +(cell.getWidth() / arrayValue.length /2) +(cell.getWidth() / arrayValue.length * i), cell.getY() + cell.getCellLength(), tar.getX() + tar.getCellWidth() /2, tar.getY(), tar));
+						arrowList.add(new ConnectPoint(cell.getX() +(cell.getWidth() / arrayValue.length /2) +(cell.getWidth() / arrayValue.length * i), cell.getY() + cell.getCellLength(), tar.getX() + tar.getCellWidth() /2, tar.getY(), tar, true));
 					}else if(array.getDirection() >= 0 && array.getDirection() <= 2){
-						arrowList.add(new ConnectPoint(cell.getX() +(cell.getWidth() / arrayValue.length /2) +(cell.getWidth() / arrayValue.length * i), cell.getY(), tar.getX() + tar.getCellWidth() /2, tar.getY() + tar.getCellLength(),  tar));
+						arrowList.add(new ConnectPoint(cell.getX() +(cell.getWidth() / arrayValue.length /2) +(cell.getWidth() / arrayValue.length * i), cell.getY(), tar.getX() + tar.getCellWidth() /2, tar.getY() + tar.getCellLength(),  tar, true));
 					}else if(array.getDirection() == 4){
 						if(oin.getPx() < arrayValue[i].getPx()){
-							arrowList.add(new ConnectPoint(cell.getX() +cell.getWidth(), cell.getY() + 27 + 18 *i , tar.getX(), tar.getY() + tar.getCellLength()/2, tar));
+							arrowList.add(new ConnectPoint(cell.getX() +cell.getWidth(), cell.getY() + 27 + 18 *i , tar.getX(), tar.getY() + tar.getCellLength()/2, tar, true));
 						}else{
 							lineList.add(new ConnectPoint(cell.getX() +cell.getWidth(), cell.getY() + 27 + 18 *i , cell.getX() +cell.getWidth() + 10, cell.getY() + 27 + 18 *i , tar));
 							lineList.add(new ConnectPoint(cell.getX() +cell.getWidth() + 10, cell.getY() + 27 + 18 *i , cell.getX() +cell.getWidth() + 10, cell.getY() + 27 + 18 *i + tar.getY() + tar.getCellLength() + 5, tar));
@@ -234,7 +118,7 @@ public class LinePanel extends JPanel{
 							arrowList.add(new ConnectPoint(tar.getX() + tar.getCellWidth()/2, cell.getY() + 27 + 18 *i + tar.getY() + tar.getCellLength() + 5, tar.getX() + tar.getCellWidth()/2, tar.getY() + tar.getCellLength(), tar));
 						}
 					}else{
-						arrowList.add(new ConnectPoint(cell.getX(), cell.getY() + 27 + 18 *i , tar.getX() + tar.getCellWidth(), tar.getY() + tar.getCellLength()/2, tar));
+						arrowList.add(new ConnectPoint(cell.getX(), cell.getY() + 27 + 18 *i , tar.getX() + tar.getCellWidth(), tar.getY() + tar.getCellLength()/2, tar, true));
 					}
 				}
 					
@@ -324,7 +208,7 @@ public class LinePanel extends JPanel{
 				if(i == 0 || i == 2){
 					if(oin.getPy() > around[i].getPy()){
 						arrowList.add(new ConnectPoint(startX, startY, tar.getX() + tar.getCellWidth() / 2, 
-								tar.getY() + tar.getCellLength() + 3, tar));
+								tar.getY() + tar.getCellLength() + 3, tar, true));
 				
 					}else{
 						int nx;
@@ -348,7 +232,7 @@ public class LinePanel extends JPanel{
 				}else if(i == 1){
 					if(oin.getPy() > around[i].getPy()){
 						if(oin.getPx() == around[i].getPx()){
-							arrowList.add(new ConnectPoint( startX, startY, startX, tar.getY() + tar.getCellLength(), tar));
+							arrowList.add(new ConnectPoint( startX, startY, startX, tar.getY() + tar.getCellLength(), tar,true));
 						}else{
 							lineList.add(new ConnectPoint(startX, startY, startX, cell.getY() -10, tar));
 							lineList.add(new ConnectPoint(startX, cell.getY() -10, tar.getX() + tar.getCellWidth() / 2,cell.getY() -10, tar));
@@ -380,12 +264,12 @@ public class LinePanel extends JPanel{
 						if(oin.getPy() == around[i].getPy()){
 							//‘ŠŽè‚ªƒŠƒ“ƒN‚ðŽ‚½‚È‚¢ê‡‘ŠŽè‚ð‚¸‚ç‚·
 							if(tar.getY() + tar.getCellLength() >= startY){
-								arrowList.add(new ConnectPoint(startX, startY,  tar.getX() + tar.getCellWidth(), startY, tar));
+								arrowList.add(new ConnectPoint(startX, startY,  tar.getX() + tar.getCellWidth(), startY, tar, true));
 							}else if(tar.getY() + tar.getCellLength() < startY && !around[i].hasLink()){
 								tar.setLocation(tar.getX(), startY - tar.getCellLength() / 2);
-								arrowList.add(new ConnectPoint(startX, startY,  tar.getX() + tar.getCellWidth(), startY, tar));
+								arrowList.add(new ConnectPoint(startX, startY,  tar.getX() + tar.getCellWidth(), startY, tar, true));
 							}else{
-								arrowList.add(new ConnectPoint(startX, startY, tar.getX() + tar.getCellWidth(), tar.getY() + tar.getCellLength() / 2, tar));
+								arrowList.add(new ConnectPoint(startX, startY, tar.getX() + tar.getCellWidth(), tar.getY() + tar.getCellLength() / 2, tar, true));
 							}
 							
 							//–îˆó‚ð‚¸‚ç‚·
@@ -420,20 +304,14 @@ public class LinePanel extends JPanel{
 						if(oin.getPy() == around[i].getPy()){
 							
 							if(tar.getY() + tar.getCellLength() >= startY){
-								arrowList.add(new ConnectPoint(startX, startY, tar.getX(), startY, tar));
+								arrowList.add(new ConnectPoint(startX, startY, tar.getX(), startY, tar, true));
 							}else if(tar.getY() + tar.getCellLength() < startY && !around[i].hasLink()){
-								arrowList.add(new ConnectPoint(startX, startY, tar.getX(), startY, tar));
+								arrowList.add(new ConnectPoint(startX, startY, tar.getX(), startY, tar, true));
 								tar.setLocation(tar.getX(), startY - tar.getCellLength() / 2);
 							}else{
-								arrowList.add(new ConnectPoint(startX, startY, tar.getX(), tar.getY() + (tar.getCellLength() / 2), tar));
+								arrowList.add(new ConnectPoint(startX, startY, tar.getX(), tar.getY() + (tar.getCellLength() / 2), tar, true));
 							}
-							/*
-							if(tar.getY() + tar.getCellLength() < startY){
-								arrowList.add(new ConnectPoint(startX, startY, tar.getX(), tar.getY() + (tar.getCellLength() / 4), tar));
-								System.out.println(tar.getY() + " " + tar.getCellLength() / 2 + " " + tar.getY() + tar.getCellLength());
-							}else{
-								arrowList.add(new ConnectPoint(startX, startY, tar.getX(), startY, tar));
-							}*/
+							
 							
 						}else{
 							lineList.add(new ConnectPoint(startX, startY, cell.getX() + base.getColumnWidth(oin.getPx()) + 5, startY, tar));
@@ -456,7 +334,12 @@ public class LinePanel extends JPanel{
 					}
 				}else if (i == 5 || i == 7){
 					if(oin.getPy() < around[i].getPy()){
-						arrowList.add(new ConnectPoint(startX, startY, tar.getX() + tar.getCellWidth() / 2, tar.getY() -3, tar));
+						if((i==5 && oin.getPx() > around[i].getPx()) || (i==7 && oin.getPx() < around[i].getPx())){
+							arrowList.add(new ConnectPoint(startX, startY, tar.getX() + tar.getCellWidth() / 2, tar.getY() -3, tar, true));
+						}else{
+							arrowList.add(new ConnectPoint(startX, startY, tar.getX() + tar.getCellWidth() / 2, tar.getY() -3, tar));
+						}
+						
 					}else{
 						int nx;
 						if(i == 5){
@@ -479,7 +362,7 @@ public class LinePanel extends JPanel{
 				}else{
 					if(oin.getPy() < around[i].getPy()){
 						if(oin.getPx() == around[i].getPx()){
-						arrowList.add(new ConnectPoint(startX, startY, startX, tar.getY(), tar));
+						arrowList.add(new ConnectPoint(startX, startY, startX, tar.getY(), tar, true));
 						}else{
 							lineList.add(new ConnectPoint(startX, startY, startX, startY + 10, tar));
 							lineList.add(new ConnectPoint(startX, startY + 10, tar.getX() + tar.getCellWidth() / 2, startY + 10, tar));
@@ -524,11 +407,11 @@ public class LinePanel extends JPanel{
 					if(oin.getPx() < toin.getPx()){
 						startX = cell.getX() + cell.getCellWidth();
 						startY = cell.getY() + cell.getHeight() + LineLength*(valueCount - valueNum) + LineLength/2 + 2;
-						arrowList.add(new ConnectPoint(startX, startY, tar.getX(), startY, tar));
+						arrowList.add(new ConnectPoint(startX, startY, tar.getX(), startY, tar, true));
 					}else if(oin.getPx() > toin.getPx()){
 						startX = cell.getX();
 						startY = cell.getY() + cell.getHeight()+ LineLength*(valueCount - valueNum) + LineLength/2 - 2;
-						arrowList.add(new ConnectPoint(startX, startY, tar.getX(), startY, tar));
+						arrowList.add(new ConnectPoint(startX, startY, tar.getX(), startY, tar, true));
 					}else{// oin.getPx() == toin.getPx()
 						//‹N‚±‚ç‚È‚¢‚Í‚¸
 					}
@@ -536,32 +419,32 @@ public class LinePanel extends JPanel{
 					if(oin.getPx() < toin.getPx()){
 						startX = cell.getX() + cell.getCellWidth();
 						startY = cell.getY() + cell.getHeight() + LineLength*(valueCount - valueNum) + LineLength/2 + 2;
-						lineList.add(new ConnectPoint(startX, startY, tar.getX() - coordinateLine, startY, tar));
-						lineList.add(new ConnectPoint(tar.getX() - coordinateLine, startY, tar.getX() - coordinateLine, tar.getY() + tar.getCellLength()/2, tar));
-						arrowList.add(new ConnectPoint(tar.getX() - coordinateLine, tar.getY() + tar.getCellLength()/2, tar.getX(), tar.getY() + tar.getCellLength()/2, tar));
+						lineList.add(new ConnectPoint(startX, startY, tar.getX() - coordinateLine, startY, tar,true));
+						lineList.add(new ConnectPoint(tar.getX() - coordinateLine, startY, tar.getX() - coordinateLine, tar.getY() + tar.getCellLength()/2, tar,true));
+						arrowList.add(new ConnectPoint(tar.getX() - coordinateLine, tar.getY() + tar.getCellLength()/2, tar.getX(), tar.getY() + tar.getCellLength()/2, tar, true));
 						XLine.put(tar.getX() - coordinateLine, tar);
 					}else if(oin.getPx() > toin.getPx()){
 						startX = cell.getX();
 						startY = cell.getY() + cell.getHeight() + LineLength*(valueCount - valueNum) + LineLength/2 - 2;
-						lineList.add(new ConnectPoint(startX, startY, tar.getX() + tar.getCellWidth() + coordinateLine,startY, tar));
-						lineList.add(new ConnectPoint(tar.getX() + tar.getCellWidth() + coordinateLine,startY, tar.getX() + tar.getCellWidth() + coordinateLine, tar.getY() + tar.getCellLength()/2, tar));
-						arrowList.add(new ConnectPoint(tar.getX() + tar.getCellWidth() +coordinateLine, tar.getY() + tar.getCellLength()/2, tar.getX() + tar.getCellWidth(),tar.getY() + tar.getCellLength()/2, tar));
+						lineList.add(new ConnectPoint(startX, startY, tar.getX() + tar.getCellWidth() + coordinateLine,startY, tar, true));
+						lineList.add(new ConnectPoint(tar.getX() + tar.getCellWidth() + coordinateLine,startY, tar.getX() + tar.getCellWidth() + coordinateLine, tar.getY() + tar.getCellLength()/2, tar, true));
+						arrowList.add(new ConnectPoint(tar.getX() + tar.getCellWidth() +coordinateLine, tar.getY() + tar.getCellLength()/2, tar.getX() + tar.getCellWidth(),tar.getY() + tar.getCellLength()/2, tar, true));
 						XLine.put(tar.getX() + tar.getCellWidth() + coordinateLine, tar);
 					}else{ // oin.getPx() == toin.getPx()
 						startX = cell.getX() + cell.getCellWidth();
 						startY = cell.getY() + cell.getHeight() + LineLength*(valueCount - valueNum) + LineLength/2;
 						
 						if(oin.getPy() > toin.getPy()){
-							lineList.add(new ConnectPoint(startX, startY, cell.getX() + tar.getCellWidth() + coordinateLine, startY, tar));
-							lineList.add(new ConnectPoint(cell.getX() + tar.getCellWidth() + coordinateLine, startY,cell.getX() + tar.getCellWidth() + coordinateLine,tar.getY() + tar.getCellLength() + coordinateLine, tar));
-							lineList.add(new ConnectPoint(cell.getX() + tar.getCellWidth() + coordinateLine,tar.getY() + tar.getCellLength() + coordinateLine, tar.getX() + tar.getCellWidth() - coordinateLine, tar.getY() + tar.getCellLength() + coordinateLine, tar));
-							arrowList.add(new ConnectPoint(tar.getX() + tar.getCellWidth() - coordinateLine, tar.getY() + tar.getCellLength() + coordinateLine, tar.getX() + tar.getCellWidth() - coordinateLine, tar.getY() + tar.getCellLength(),tar));
+							lineList.add(new ConnectPoint(startX, startY, cell.getX() + tar.getCellWidth() + coordinateLine, startY, tar, true));
+							lineList.add(new ConnectPoint(cell.getX() + tar.getCellWidth() + coordinateLine, startY,cell.getX() + tar.getCellWidth() + coordinateLine,tar.getY() + tar.getCellLength() + coordinateLine, tar, true));
+							lineList.add(new ConnectPoint(cell.getX() + tar.getCellWidth() + coordinateLine,tar.getY() + tar.getCellLength() + coordinateLine, tar.getX() + tar.getCellWidth() - coordinateLine, tar.getY() + tar.getCellLength() + coordinateLine, tar, true));
+							arrowList.add(new ConnectPoint(tar.getX() + tar.getCellWidth() - coordinateLine, tar.getY() + tar.getCellLength() + coordinateLine, tar.getX() + tar.getCellWidth() - coordinateLine, tar.getY() + tar.getCellLength(),tar, true));
 							XLine.put(cell.getX() + tar.getCellWidth() + coordinateLine, tar);
 						}else{
-							lineList.add(new ConnectPoint(startX, startY, startX + 10 + coordinateLine, startY, tar));
-							lineList.add(new ConnectPoint(startX + 10 + coordinateLine, startY,startX + 10 + coordinateLine,tar.getY() - coordinateLine, tar));
-							lineList.add(new ConnectPoint(startX + 10 + coordinateLine,tar.getY() - coordinateLine, tar.getX() + tar.getCellWidth() - coordinateLine, tar.getY() - coordinateLine, tar));
-							arrowList.add(new ConnectPoint(tar.getX() + tar.getCellWidth() - coordinateLine, tar.getY() - coordinateLine, tar.getX() + tar.getCellWidth() - coordinateLine, tar.getY(),tar));
+							lineList.add(new ConnectPoint(startX, startY, startX + 10 + coordinateLine, startY, tar, true));
+							lineList.add(new ConnectPoint(startX + 10 + coordinateLine, startY,startX + 10 + coordinateLine,tar.getY() - coordinateLine, tar, true));
+							lineList.add(new ConnectPoint(startX + 10 + coordinateLine,tar.getY() - coordinateLine, tar.getX() + tar.getCellWidth() - coordinateLine, tar.getY() - coordinateLine, tar, true));
+							arrowList.add(new ConnectPoint(tar.getX() + tar.getCellWidth() - coordinateLine, tar.getY() - coordinateLine, tar.getX() + tar.getCellWidth() - coordinateLine, tar.getY(),tar,true));
 							XLine.put(cell.getX() + tar.getCellWidth() + coordinateLine, tar);
 						}
 					}
@@ -592,14 +475,22 @@ public class LinePanel extends JPanel{
 		g.setColor(Color.BLUE);
 		if(lineList != null){
 			for(Iterator<ConnectPoint> it = lineList.iterator(); it.hasNext();){
+				
 				ConnectPoint cp = it.next();
+				if(!cp.st){
+					g.setColor(Color.ORANGE);
+				}
 				g.drawLine(cp.sx, cp.sy, cp.gx, cp.gy);
+				g.setColor(Color.BLUE);
 			}
 		}
 		
+		g.setColor(Color.BLUE);
 		for(Iterator<ConnectPoint> it = arrowList.iterator(); it.hasNext();){
 			ConnectPoint cp = it.next();
-			
+			if(!cp.st) {
+				g.setColor(Color.ORANGE);
+			}
 			if(cp.sx == cp.gx && cp.sy > cp.gy){
 				drawArrow(g, cp.sx, cp.sy, cp.gx, cp.tar.getY() + cp.tar.getCellLength(), 5);
 			}else if(cp.sx == cp.gx && cp.sy< cp.gy){
@@ -613,6 +504,7 @@ public class LinePanel extends JPanel{
 			}else if(cp.sy < cp.gy){
 				drawArrow(g, cp.sx, cp.sy, cp.gx, cp.tar.getY(), 5);
 			}
+			g.setColor(Color.BLUE);
 		}
 		
 		g.setColor(Color.RED);

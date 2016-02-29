@@ -72,24 +72,16 @@ public class BasePane extends JLayeredPane implements ActionListener{
 		rowLength = new HashMap<Integer, Integer>();
 		cellpanel.clear();
 
-		for(Iterator<ObjectInfo> it = tar.iterator(); it.hasNext();){
-			ObjectInfo oin = (ObjectInfo)it.next();
-			/*System.out.println(oin.object.type());
-			System.out.println(oin.isLinked() + " "+ oin.hasLink() + " " + oin.set);*/
+		for(int i = 0;  i < tar.size(); i++){
+			ObjectInfo oin = tar.get(i);
 			if((oin.isLinked() == true || oin.hasLink() == true) && oin.set == true){
 				
 				if(!mode){
 					cellpanel.put(oin ,new CellPanel(oin));
-				}/*else{
-					cellpanel.put(oin ,new CellPanelVerJive(oin));
-				}*/
-				/*if(cellpanel.get(oin).getPreferredSize().width > cellWidth && oin.isArray() == false){
-					cellWidth = cellpanel.get(oin).getPreferredSize().width;
+				}else{
+				
 				}
-				if(cellpanel.get(oin).getPreferredSize().height > cellLength && oin.isArray() == false){
-					cellLength = cellpanel.get(oin).getPreferredSize().height;
-
-				}*/
+				
 				Integer length = rowLength.get(oin.getPy());
 				Integer width = columnWidth.get(oin.getPx());
 				if(length == null || cellpanel.get(oin).getPreferredSize().height > length){
@@ -153,9 +145,9 @@ public class BasePane extends JLayeredPane implements ActionListener{
 		LinePanel line;
 		//if(!mode){
 			line = new LinePanel(targetObject, cellpanel, this);
-	/*	}else{
-			line = new LinePanelVerJive(targetObject, cellpanel, this);
-		}*/
+	//}else{
+		//	line = new LinePanelVerJive(targetObject, cellpanel, this);
+		//}
 		this.add(line, JLayeredPane.PALETTE_LAYER);
 		line.setSize(this.getPreferredSize());
 	}
@@ -246,7 +238,6 @@ public class BasePane extends JLayeredPane implements ActionListener{
 	public void setJiveMode(boolean m){
 		
 		this.mode = m;
-		System.out.println(mode);
 	}
 	
 }
